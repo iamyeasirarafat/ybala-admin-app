@@ -2,27 +2,23 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import {
+  FoodReport,
+  UniqueVisitReport,
+  UserReport,
+  WishlistReport,
+} from '@/components/analytics';
 import { OrderReport, PaymentReport, SalesReport } from '@/components/dashboard';
-import { useProfile } from '@/hooks/useProfile';
 
-export default function DashboardScreen() {
-  const { data: profile, refetch: refetchProfile } = useProfile();
+export default function AnalyticsScreen() {
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
-
-  const name =
-    profile?.first_name && profile?.last_name
-      ? `${profile.first_name} ${profile.last_name}`
-      : profile?.first_name || profile?.email || 'Admin';
 
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      // Refetch all analytics queries plus the profile
-      await Promise.all([
-        queryClient.refetchQueries({ queryKey: ['analytics'] }),
-        refetchProfile(),
-      ]);
+      // Refetch every analytics query so the numbers reflect the latest data
+      await queryClient.refetchQueries({ queryKey: ['analytics'] });
     } finally {
       setRefreshing(false);
     }
@@ -31,19 +27,25 @@ export default function DashboardScreen() {
   return (
     <Screen scroll refreshing={refreshing} onRefresh={handleRefresh}>
       <View className="px-4 py-4 gap-5">
-        {/* Header */}
         <View>
           <Text className="text-2xl font-bold text-gray-900 dark:text-white">
-            Welcome back, {name}
+            Analytics
           </Text>
           <Text className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Track and manage your orders & users from the dashboard
+            Track and measure your sales and customers
           </Text>
         </View>
 
+        {/* Sales analytics */}
         <PaymentReport />
-        <OrderReport />
         <SalesReport />
+        <OrderReport />
+        <FoodReport />
+        <WishlistReport />
+
+        {/* Customer analytics */}
+        <UserReport />
+        <UniqueVisitReport />
       </View>
     </Screen>
   );

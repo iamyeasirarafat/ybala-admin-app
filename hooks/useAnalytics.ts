@@ -1,7 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { analyticsService } from '@/services/analyticsService';
 import { useAuthStore } from '@/store/auth.store';
-import { AnalyticsPeriod, PaymentAnalyticsParams } from '@/types';
+import {
+  AnalyticsPeriod,
+  PaymentAnalyticsParams,
+  TopProductsParams,
+} from '@/types';
 
 export const usePaymentAnalytics = (params: PaymentAnalyticsParams = {}) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -30,5 +34,47 @@ export const useSalesReport = (period: AnalyticsPeriod) => {
     queryKey: ['analytics', 'sales-report', period],
     queryFn: () => analyticsService.getSalesReport(period),
     enabled: isAuthenticated,
+  });
+};
+
+export const useUserReport = (period: AnalyticsPeriod) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ['analytics', 'user-report', period],
+    queryFn: () => analyticsService.getUserReport(period),
+    enabled: isAuthenticated,
+  });
+};
+
+export const useUniqueVisitorReport = (period: AnalyticsPeriod) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ['analytics', 'unique-visitor-report', period],
+    queryFn: () => analyticsService.getUniqueVisitorReport(period),
+    enabled: isAuthenticated,
+  });
+};
+
+export const useTopSellingProducts = (params: TopProductsParams) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ['analytics', 'top-selling', params],
+    queryFn: () => analyticsService.getTopSellingProducts(params),
+    enabled: isAuthenticated,
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useTopWishlistedProducts = (params: TopProductsParams) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ['analytics', 'top-wishlisted', params],
+    queryFn: () => analyticsService.getTopWishlistedProducts(params),
+    enabled: isAuthenticated,
+    placeholderData: keepPreviousData,
   });
 };

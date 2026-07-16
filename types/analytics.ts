@@ -31,3 +31,42 @@ export type SalesReport = Record<
     canceled: number;
   }
 >;
+
+// Single-series reports keyed by month/day label, e.g. { jan: 12, feb: 8, ... }
+export type UserReport = Record<string, number>;
+export type VisitorReport = Record<string, number>;
+
+export type ReportOrder = 'asc' | 'desc';
+
+export interface Paginated<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
+interface MenuSummary {
+  id: number;
+  translations?: { en?: { name?: string }; [key: string]: any };
+  image?: string | null;
+  type?: string;
+  price?: number | string;
+}
+
+export interface TopSellingProduct {
+  menu: MenuSummary;
+  sold_count: number;
+  total_price: number | string | null;
+}
+
+export interface TopWishlistedProduct {
+  menu: MenuSummary;
+  total_wishlisted: number;
+}
+
+export interface TopProductsParams {
+  period: AnalyticsPeriod;
+  order?: ReportOrder;
+  page?: number;
+  limit?: number;
+}

@@ -1,6 +1,13 @@
 import { useColorScheme } from 'nativewind';
 import React, { forwardRef } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ScreenProps {
@@ -9,6 +16,8 @@ interface ScreenProps {
   safe?: boolean;
   header?: boolean;
   className?: string;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 }
 
 export const Screen = forwardRef<ScrollView, ScreenProps>(({
@@ -16,6 +25,8 @@ export const Screen = forwardRef<ScrollView, ScreenProps>(({
   scroll = false,
   safe = true,
   className = '',
+  refreshing,
+  onRefresh,
 }, ref) => {
   const { colorScheme } = useColorScheme();
 
@@ -42,6 +53,16 @@ export const Screen = forwardRef<ScrollView, ScreenProps>(({
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="interactive"
+              refreshControl={
+                onRefresh ? (
+                  <RefreshControl
+                    refreshing={!!refreshing}
+                    onRefresh={onRefresh}
+                    tintColor="#6FA25F"
+                    colors={['#6FA25F']}
+                  />
+                ) : undefined
+              }
             >
               {children}
             </ScrollView>

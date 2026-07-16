@@ -18,3 +18,25 @@ export const getLineChartConfig = (isDark: boolean) => ({
   propsForDots: { r: '3' },
   propsForLabels: { fontSize: 10 },
 });
+
+const hexToRgb = (hex: string) => {
+  const clean = hex.replace('#', '');
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  return { r, g, b };
+};
+
+export const getBarChartConfig = (isDark: boolean, color = '#6FA25F') => {
+  const { r, g, b } = hexToRgb(color);
+  return {
+    backgroundGradientFrom: isDark ? '#111827' : '#FFFFFF',
+    backgroundGradientTo: isDark ? '#111827' : '#FFFFFF',
+    decimalPlaces: 0,
+    color: (opacity = 1) => `rgba(${r}, ${g}, ${b}, ${opacity})`,
+    labelColor: () => (isDark ? '#9CA3AF' : '#6B7280'),
+    propsForLabels: { fontSize: 10 },
+    barPercentage: 0.6,
+    fillShadowGradientOpacity: 1,
+  };
+};
