@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { useAuthStore } from '@/store/auth.store';
+import { useProfile } from '@/hooks/useProfile';
 
 export default function HomeScreen() {
-  const { user } = useAuthStore();
+  const { data: profile } = useProfile();
 
   return (
     <Screen>
@@ -14,9 +14,9 @@ export default function HomeScreen() {
           <Text className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
             Welcome Home!
           </Text>
-          {user && (
+          {profile?.email && (
             <Text className="text-base text-gray-600 dark:text-gray-400 mb-6">
-              {user.email}
+              {profile.email}
             </Text>
           )}
 

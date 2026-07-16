@@ -5,10 +5,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import { Screen } from '@/components/Screen';
 import { useAuthStore } from '@/store/auth.store';
+import { useProfile } from '@/hooks/useProfile';
 import { APP_CONFIG } from '@/constants/config';
 
 export default function SettingsScreen() {
-  const { user, logout } = useAuthStore();
+  const { logout } = useAuthStore();
+  const { data: profile } = useProfile();
   const router = useRouter();
   const { colorScheme, toggleColorScheme } = useColorScheme();
 
@@ -36,7 +38,7 @@ export default function SettingsScreen() {
           </Text>
 
           {/* Account Card */}
-          {user && (
+          {profile && (
             <View className="bg-gradient-to-r bg-primary-50 dark:bg-primary-900/20 rounded-xl p-5 mb-6 border border-primary-200 dark:border-primary-800">
               <View className="flex-row items-center mb-3">
                 <View className="w-12 h-12 bg-primary-600 rounded-full items-center justify-center mr-3">
@@ -44,10 +46,10 @@ export default function SettingsScreen() {
                 </View>
                 <View className="flex-1">
                   <Text className="text-lg font-bold text-primary-900 dark:text-primary-100">
-                    Account
+                    {profile.userType === 'admin' ? 'Administrator' : 'Manager'}
                   </Text>
                   <Text className="text-sm text-primary-700 dark:text-primary-300">
-                    {user.email}
+                    {profile.email}
                   </Text>
                 </View>
               </View>
@@ -78,8 +80,8 @@ export default function SettingsScreen() {
               <Switch
                 value={colorScheme === 'dark'}
                 onValueChange={toggleColorScheme}
-                trackColor={{ false: '#d1d5db', true: '#0ea5e9' }}
-                thumbColor={colorScheme === 'dark' ? '#38bdf8' : '#f3f4f6'}
+                trackColor={{ false: '#d1d5db', true: '#6FA25F' }}
+                thumbColor={colorScheme === 'dark' ? '#82c36f' : '#f3f4f6'}
               />
             </View>
           </View>

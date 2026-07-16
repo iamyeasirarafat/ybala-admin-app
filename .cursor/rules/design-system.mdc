@@ -1,0 +1,37 @@
+---
+description: Make ybala-admin-app look and feel identical to ybala-customer-app
+alwaysApply: true
+---
+
+# Design System — mirror ybala-customer-app
+
+Source of truth: `/Users/yeasirarafat/projects/ybala-customer-app`.
+Read `ybala-customer-app/CODEBASE_REFERENCE.md` before building any UI.
+
+The user must not be able to tell this is a different app from the customer app:
+same design language, spacing, typography, colors, and interaction patterns.
+
+## Reuse the same patterns / components
+
+- `components/Screen.tsx` — base screen wrapper for every screen
+- `components/Header.tsx` — app header
+- `components/CustomTabBar.tsx` — bottom tab bar
+- `components/ui/` primitives: `Button`, `Input`, `Avatar`, `Badge`, `IconButton`,
+  `DropdownMenu`, `Skeleton`, `Slider` (import from `components/ui`)
+
+When a component already exists in the customer app, port it over instead of writing
+a new one, keeping the same props and styling.
+
+## Same stack / method
+
+- **Styling:** NativeWind (Tailwind for RN), `className` props, class-based dark mode
+- **Client state:** Zustand, one store per domain in `store/` (e.g. `auth.store.ts`)
+- **Server state:** TanStack React Query hooks in `hooks/`
+- **HTTP:** Axios services in `services/`, split into `publicApi` / `protectedApi`
+
+## Typography & color
+
+Typography, spacing, and colors must match the customer app. The color palette
+source of truth is `ybala-customer-app/tailwind.config.js`:
+primary green `#6FA25F`, secondary orange `#F38744`. Keep this repo's
+`tailwind.config.js` in sync with it.

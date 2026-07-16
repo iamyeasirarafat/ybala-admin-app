@@ -1,0 +1,41 @@
+---
+description: Follow the same folder structure as ybala-customer-app
+alwaysApply: true
+---
+
+# Folder Structure — mirror ybala-customer-app
+
+Keep the same top-level folders and file-placement conventions as
+`/Users/yeasirarafat/projects/ybala-customer-app`. Do not invent new
+top-level folders or alternate layouts.
+
+```
+app/            # Expo Router screens (file-based routing)
+  (auth)/       # Auth stack (grouped route)
+  (tabs)/       # Bottom tab navigator (grouped route)
+  _layout.tsx   # Root layout — providers, nav handler, ToastContainer
+  index.tsx     # Root redirect
+components/     # Reusable components; feature subfolders (e.g. Home/, Menu/)
+  ui/           # UI primitives (Input, Button, ...) exported via index.ts
+constants/      # colors.ts, config.ts
+hooks/          # TanStack Query hooks, one per concern; barrel index.ts
+providers/      # QueryProvider, AuthProvider, ...
+services/       # api.ts (publicApi/protectedApi) + one <domain>Service.ts each; index.ts
+storage/        # secure.ts (token storage)
+store/          # Zustand stores, one per domain: <domain>.store.ts
+types/          # Types split per domain + barrel index.ts
+utils/          # errorExtractor, toast, index.ts helpers
+```
+
+## Rules
+
+- One store per domain in `store/` named `<domain>.store.ts`.
+- One service per domain in `services/` named `<domain>Service.ts`, all built on
+  `publicApi` / `protectedApi` from `services/api.ts`.
+- Data fetching lives in `hooks/` as React Query hooks, never inline in screens.
+- Screen route files go under `app/`; shared UI goes under `components/`
+  (screen-specific pieces in a feature subfolder).
+- Reusable primitives live in `components/ui/` and are re-exported from
+  `components/ui/index.ts`.
+- When a folder/file exists in the customer app for the same concern, match its
+  name and location exactly.

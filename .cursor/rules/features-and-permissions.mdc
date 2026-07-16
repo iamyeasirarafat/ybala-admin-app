@@ -1,0 +1,28 @@
+---
+description: Where features/pages/permissions come from (yabala-fe admin & manager)
+alwaysApply: true
+---
+
+# Features & Permissions — source is yabala-fe
+
+Source of truth: `/Users/yeasirarafat/projects/yabala-fe`.
+
+This app is the mobile version of the `admin` and `manager` panels of the Yabala
+web frontend. To learn what a screen contains or needs, read the matching web route:
+
+- Admin: `yabala-fe/app/admin/**` (and its `components/`)
+- Manager: `yabala-fe/app/manager/**` (and its `components/`)
+
+## Role model
+
+From `yabala-fe/middleware.ts`, `user_type` is either `admin` or `manager`:
+
+- **admin** — full access. Sections: `(analytics)` (customer-analytics,
+  sales-analytics), `(menu)`, `(order)`, `(promotion)`, `(seo)`, `(settings)`, `(user)`
+- **manager** — subset. Sections: `(menu)`, `(order)`
+
+Build navigation, screens, and permission gating so a manager only sees the
+manager subset and an admin sees everything, matching the web behavior.
+
+Before building a feature, confirm which role(s) can access it in the web app,
+and replicate that gating here (e.g. based on the authenticated user's role).

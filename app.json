@@ -1,15 +1,16 @@
 {
   "expo": {
-    "name": "ybala_customer_app",
-    "slug": "ybala_customer_app",
+    "name": "ybala_admin_app",
+    "slug": "ybala_admin_app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "ybalacustomerapp",
+    "scheme": "ybalaadminapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ybala.adminApp"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +20,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ybala.adminApp"
     },
     "web": {
       "output": "static",

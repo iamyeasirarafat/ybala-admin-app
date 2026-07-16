@@ -1,18 +1,25 @@
+export type UserType = 'admin' | 'manager';
+
 export interface User {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
+  id: number;
+  email?: string;
+  phoneNumber?: string;
+  first_name?: string;
+  last_name?: string;
+  userType: UserType;
+  profile_image?: string;
 }
 
 export interface AuthState {
-  token: string | null;
-  user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  userType: UserType | null;
   isAuthenticated: boolean;
-  setToken: (token: string | null) => void;
-  setUser: (user: User | null) => void;
-  logout: () => void;
-  login: (email: string, password: string) => Promise<void>;
+  setTokens: (accessToken: string | null, refreshToken: string | null) => void;
+  setUserType: (userType: UserType | null) => void;
+  login: (userName: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshAccessToken: () => Promise<string | null>;
 }
 
 export interface ApiError {
@@ -21,11 +28,23 @@ export interface ApiError {
   status?: number;
 }
 
+// API response types (mirror yabala-be / ybala-customer-app)
 export interface LoginResponse {
-  token: string;
-  user: User;
+  access: string;
+  refresh: string;
+  userType: UserType | 'customer';
+}
+
+export interface RefreshTokenResponse {
+  access: string;
 }
 
 export interface ProfileResponse {
-  user: User;
+  id: number;
+  email?: string;
+  phoneNumber?: string;
+  first_name?: string;
+  last_name?: string;
+  userType: UserType;
+  profile_image?: string;
 }

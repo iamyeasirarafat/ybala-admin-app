@@ -1,0 +1,28 @@
+---
+description: Core context for ybala-admin-app and its three sibling reference projects
+alwaysApply: true
+---
+
+# ybala-admin-app — Project Context
+
+`ybala-admin-app` is the Expo / React Native app for Yabala **staff**. It reimplements
+the `admin` and `manager` panels from the web frontend (`yabala-fe`) as a mobile app,
+while looking and feeling exactly like the customer app (`ybala-customer-app`).
+
+## Reference projects (siblings of this repo)
+
+| Project | Path | Use it for |
+|---------|------|-----------|
+| `ybala-customer-app` | `/Users/yeasirarafat/projects/ybala-customer-app` | Design, patterns, typography, components, stack — the app must feel identical to this |
+| `yabala-fe` | `/Users/yeasirarafat/projects/yabala-fe` | What pages exist, what each page needs, and who (admin vs manager) can access what |
+| `yabala-be` | `/Users/yeasirarafat/projects/yabala-be` | API contracts — routes, request/response shapes, permissions |
+
+## Prime directive
+
+When unsure, consult the source of truth instead of guessing:
+
+- Design / UX / component / styling question -> read `ybala-customer-app`
+- Feature / page / permission question -> read `yabala-fe`
+- API / endpoint / payload question -> read `yabala-be`
+
+Always match existing conventions rather than inventing new ones.

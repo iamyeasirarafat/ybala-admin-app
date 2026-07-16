@@ -1,4 +1,4 @@
-// UI components will be created here as needed
-// All components will use Tailwind/NativeWind styling
+// UI primitives — mirrors ybala-customer-app/components/ui
+// All components use Tailwind/NativeWind styling
 
-export {};
+export { Input } from './Input';

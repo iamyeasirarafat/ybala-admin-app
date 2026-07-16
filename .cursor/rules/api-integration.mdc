@@ -1,0 +1,29 @@
+---
+description: How to integrate APIs — contracts come from yabala-be
+globs: services/**,hooks/**,store/**
+alwaysApply: false
+---
+
+# API Integration — source is yabala-be
+
+Source of truth: `/Users/yeasirarafat/projects/yabala-be` (Django).
+
+Before adding or consuming an endpoint, check the matching Django app in
+`yabala-be/apps/<domain>/`:
+
+- `urls.py` — available routes
+- `views.py` — logic, method, and permissions
+- `serializers.py` — exact request/response shape
+
+## Domains
+
+`analytics`, `menu`, `order`, `payment`, `promotion`, `settings`, `user`.
+
+## Rules
+
+- Cross-check real usage in `yabala-fe` (its `actions/`, `redux/`, `hook/`, `lib/`)
+  to see how the endpoint is actually called and what params it expects.
+- Mirror the customer app's `services/api.ts` calling pattern (`publicApi` /
+  `protectedApi`, token attachment, interceptors) and its error handling.
+- Keep one service file per domain in `services/` and expose data via React Query
+  hooks in `hooks/`, matching `ybala-customer-app` conventions.

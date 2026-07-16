@@ -1,8 +1,7 @@
 export const APP_CONFIG = {
-  name: 'Ybala Customer App',
+  name: 'Ybala Admin App',
   version: '1.0.0',
-  apiUrl: process.env.EXPO_PUBLIC_API_URL || 'https://api.example.com',
-  enableMockAuth: true, // Set to false in production
+  apiUrl: "https://api.ybalawrqenab.com",
 };
 
 export const QUERY_CONFIG = {

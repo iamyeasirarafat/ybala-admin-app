@@ -1,38 +1,58 @@
 import { create } from 'zustand';
-import { AuthState, User, LoginResponse } from '@/types';
-import { saveToken, getToken, deleteToken } from '@/storage/secure';
-import { api } from '@/services/api';
+import axios from 'axios';
+import { AuthState, LoginResponse, UserType } from '@/types';
+import {
+  saveTokens,
+  getAccessToken,
+  getRefreshToken,
+  deleteAllTokens,
+  saveAccessToken,
+} from '@/storage/secure';
+import { publicApi } from '@/services/api';
+import { queryClient } from '@/providers/QueryProvider';
+import { APP_CONFIG } from '@/constants/config';
+
+const isStaff = (userType: string): userType is UserType =>
+  userType === 'admin' || userType === 'manager';
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  token: null,
-  user: null,
+  accessToken: null,
+  refreshToken: null,
+  userType: null,
   isAuthenticated: false,
 
-  setToken: (token: string | null) => {
-    set({ token, isAuthenticated: !!token });
+  setTokens: (accessToken, refreshToken) => {
+    set({
+      accessToken,
+      refreshToken,
+      isAuthenticated: !!(accessToken && refreshToken),
+    });
   },
 
-  setUser: (user: User | null) => {
-    set({ user });
+  setUserType: (userType) => {
+    set({ userType });
   },
 
-  login: async (email: string, password: string) => {
+  login: async (userName: string, password: string) => {
     try {
-      // Mock API call - replace with your actual endpoint
-      const response = await api.post<LoginResponse>('/auth/login', {
-        email,
+      const response = await publicApi.post<LoginResponse>('/login', {
+        user_name: userName,
         password,
       });
 
-      const { token, user } = response.data;
+      const { access, refresh, userType } = response.data;
 
-      // Save token to secure storage
-      await saveToken(token);
+      // Security: this app is for staff only. Reject customers.
+      if (!isStaff(userType)) {
+        throw new Error('This account is not authorized to use the admin app.');
+      }
 
-      // Update store
+      await saveTokens(access, refresh);
+
       set({
-        token,
-        user,
+        accessToken: access,
+        refreshToken: refresh,
+        userType,
         isAuthenticated: true,
       });
     } catch (error) {
@@ -43,32 +63,60 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     try {
-      // Delete token from secure storage
-      await deleteToken();
+      await deleteAllTokens();
 
-      // Clear store
       set({
-        token: null,
-        user: null,
+        accessToken: null,
+        refreshToken: null,
+        userType: null,
         isAuthenticated: false,
       });
+
+      // Remove cached profile so it re-fetches fresh on next login
+      queryClient.removeQueries({ queryKey: ['profile'] });
     } catch (error) {
       console.error('Logout error:', error);
       throw error;
     }
   },
+
+  refreshAccessToken: async () => {
+    try {
+      const refreshToken = await getRefreshToken();
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await axios.post<{ access: string }>(
+        `${APP_CONFIG.apiUrl}/refresh`,
+        { refresh: refreshToken }
+      );
+
+      const newAccessToken = response.data.access;
+      await saveAccessToken(newAccessToken);
+      set({ accessToken: newAccessToken });
+
+      return newAccessToken;
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      await get().logout();
+      return null;
+    }
+  },
 }));
 
-// Initialize auth state from secure storage
+/**
+ * Initialize auth state from secure storage on cold start.
+ * Profile data (and userType) is restored reactively by the useProfile
+ * hook once isAuthenticated becomes true.
+ */
 export const initializeAuth = async () => {
   try {
-    const token = await getToken();
-    if (token) {
-      useAuthStore.getState().setToken(token);
+    const accessToken = await getAccessToken();
+    const refreshToken = await getRefreshToken();
 
-      // Optionally fetch user data
-      // const user = await fetchUserProfile();
-      // useAuthStore.getState().setUser(user);
+    if (accessToken && refreshToken) {
+      useAuthStore.getState().setTokens(accessToken, refreshToken);
     }
   } catch (error) {
     console.error('Error initializing auth:', error);

@@ -2,7 +2,9 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { QUERY_CONFIG } from '@/constants/config';
 
-const queryClient = new QueryClient({
+// Exported so auth.store can clear cached queries on logout
+// without needing to be inside a React component
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: QUERY_CONFIG.staleTime,
