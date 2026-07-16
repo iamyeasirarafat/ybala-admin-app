@@ -1,3 +1,5 @@
+export * from './analytics';
+
 export type UserType = 'admin' | 'manager';
 
 export interface User {
