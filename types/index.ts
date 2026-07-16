@@ -1,4 +1,5 @@
 export * from './analytics';
+export * from './settings';
 
 export type UserType = 'admin' | 'manager';
 

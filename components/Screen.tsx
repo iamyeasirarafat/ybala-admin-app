@@ -8,7 +8,7 @@ import {
   StatusBar,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ScreenProps {
   children: React.ReactNode;
@@ -29,6 +29,11 @@ export const Screen = forwardRef<ScrollView, ScreenProps>(({
   onRefresh,
 }, ref) => {
   const { colorScheme } = useColorScheme();
+  const insets = useSafeAreaInsets();
+
+  // Leave room for the device's bottom navigation / home indicator so content
+  // (and action buttons) never sit flush against the system nav area.
+  const bottomSpace = insets.bottom + 24;
 
   const baseClassName = `flex-1 ${colorScheme === 'dark' ? 'bg-gray-900' : 'bg-white'} ${className}`;
 
@@ -49,7 +54,7 @@ export const Screen = forwardRef<ScrollView, ScreenProps>(({
             <ScrollView
               ref={ref}
               className="flex-1"
-              contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
+              contentContainerStyle={{ flexGrow: 1, paddingBottom: bottomSpace }}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="interactive"
@@ -68,7 +73,7 @@ export const Screen = forwardRef<ScrollView, ScreenProps>(({
             </ScrollView>
           </KeyboardAvoidingView>
         ) : (
-          <View className="flex-1">
+          <View className="flex-1" style={{ paddingBottom: insets.bottom }}>
             {children}
           </View>
         )}
