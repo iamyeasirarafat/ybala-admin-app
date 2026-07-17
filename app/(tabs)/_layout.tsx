@@ -2,10 +2,12 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import { Colors } from '@/constants/colors';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const isManager = useAuthStore((s) => s.userType === 'manager');
 
   return (
     <Tabs
@@ -63,6 +65,8 @@ export default function TabLayout() {
         name="promotion"
         options={{
           title: 'Promotion',
+          // Managers have no access to promotions — hide the tab entirely.
+          href: isManager ? null : undefined,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="pricetags" size={size} color={color} />
           ),

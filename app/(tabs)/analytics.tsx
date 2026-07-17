@@ -1,6 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import {
   FoodReport,
@@ -9,10 +6,15 @@ import {
   WishlistReport,
 } from '@/components/analytics';
 import { OrderReport, PaymentReport, SalesReport } from '@/components/dashboard';
+import { useAuthStore } from '@/store/auth.store';
+import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { Text, View } from 'react-native';
 
 export default function AnalyticsScreen() {
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
+  const isManager = useAuthStore((s) => s.userType === 'manager');
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -41,11 +43,15 @@ export default function AnalyticsScreen() {
         <SalesReport />
         <OrderReport />
         <FoodReport />
-        <WishlistReport />
 
-        {/* Customer analytics */}
-        <UserReport />
-        <UniqueVisitReport />
+        {/* Customer analytics — admin only */}
+        {!isManager && (
+          <>
+            <WishlistReport />
+            <UserReport />
+            <UniqueVisitReport />
+          </>
+        )}
       </View>
     </Screen>
   );
