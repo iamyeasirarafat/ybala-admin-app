@@ -50,6 +50,27 @@ export const useCreateOrder = () => {
   });
 };
 
+export const useUpdateOrder = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: Partial<CreateOrderPayload>;
+    }) => orderService.updateOrder(id, payload),
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: ['order', 'list'] });
+      qc.invalidateQueries({ queryKey: keys.order(vars.id) });
+      toast.success('Order updated successfully.');
+    },
+    onError: (error) => {
+      toast.error(extractApiError(error, 'Failed to update order.'));
+    },
+  });
+};
+
 export const useUpdateOrderStatus = () => {
   const qc = useQueryClient();
   return useMutation({

@@ -1,6 +1,13 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Switch, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SingleSelectField } from '@/components/menu/SingleSelectField';
 import { SectionHeading } from '@/components/settings/SectionHeading';
 import { Button, Input } from '@/components/ui';
 import {
@@ -8,7 +15,9 @@ import {
   useCartItems,
   useCreateOrder,
   useDeleteCartItem,
+  useOrder,
   useUpdateCartQuantity,
+  useUpdateOrder,
 } from '@/hooks/useOrder';
 import { useProfile } from '@/hooks/useProfile';
 import { useShopSettings, useStoreLocations } from '@/hooks/useSettings';
@@ -40,14 +49,20 @@ const emptyAddress: ShippingAddress = { street: '', city: '', zip: '' };
 
 export const OrderForm: React.FC = () => {
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const orderId = id ? Number(id) : undefined;
+  const isEdit = !!orderId;
+
   const { data: profile } = useProfile();
   const { data: shopSettings } = useShopSettings();
   const { data: storeLocations = [] } = useStoreLocations();
+  const { data: editingOrder, isLoading: loadingOrder } = useOrder(orderId);
 
   const addCartItem = useAddCartItem();
   const updateQty = useUpdateCartQuantity();
   const deleteCartItem = useDeleteCartItem();
   const createOrder = useCreateOrder();
+  const updateOrder = useUpdateOrder();
 
   const [customer, setCustomer] = useState<SelectedCustomer | null>(null);
   const [firstName, setFirstName] = useState('');
@@ -66,17 +81,59 @@ export const OrderForm: React.FC = () => {
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>('cash_on_delivery');
   const [deliveryNote, setDeliveryNote] = useState('');
+  const [storeLocationId, setStoreLocationId] = useState<number | null>(null);
 
   const isManager = profile?.userType === 'manager';
+  const isAdmin = profile?.userType === 'admin';
   const isGuest = customer?.id === 'guest';
   const customerNumericId =
     customer && customer.id !== 'guest' ? customer.id : undefined;
 
-  // Load an existing customer's draft cart when a real customer is picked.
-  const { data: existingCart } = useCartItems(customerNumericId);
+  // Load an existing customer's draft cart when a real customer is picked
+  // (create mode only — in edit mode the cart comes from the order itself).
+  const { data: existingCart } = useCartItems(
+    isEdit ? undefined : customerNumericId,
+  );
   useEffect(() => {
-    if (existingCart) setCart(existingCart);
-  }, [existingCart]);
+    if (!isEdit && existingCart) setCart(existingCart);
+  }, [isEdit, existingCart]);
+
+  // Prefill everything from the order when editing.
+  const [initialized, setInitialized] = useState(false);
+  useEffect(() => {
+    if (!isEdit || !editingOrder || initialized) return;
+    const o = editingOrder;
+    setCustomer(
+      o.user_data?.id
+        ? {
+            id: o.user_data.id,
+            first_name: o.first_name,
+            last_name: o.last_name,
+            phone: o.customer_phone,
+            email: o.customer_email,
+          }
+        : { id: 'guest', first_name: o.first_name, last_name: o.last_name },
+    );
+    setFirstName(o.first_name || '');
+    setLastName(o.last_name || '');
+    setPhone(stripCode(o.customer_phone));
+    setEmail(o.customer_email || '');
+    setMethod(o.is_pickup ? 'pickup' : 'delivery');
+    if (!o.is_pickup && o.shipping_address) {
+      const a = o.shipping_address as ShippingAddress;
+      setAddress({
+        street: a.street || '',
+        city: a.city || '',
+        zip: a.zip || '',
+      });
+    }
+    if (o.is_pickup && o.branch_info?.id) setBranchId(o.branch_info.id);
+    setCart(o.carts ?? []);
+    setCoupons(o.coupon_data ?? []);
+    setPaymentMethod(o.payment_method ?? 'cash_on_delivery');
+    setDeliveryNote(o.delivery_note ?? '');
+    setInitialized(true);
+  }, [isEdit, editingOrder, initialized]);
 
   const branchOptions = useMemo(
     () =>
@@ -177,7 +234,7 @@ export const OrderForm: React.FC = () => {
         : undefined;
 
     const payload: CreateOrderPayload = {
-      status: 'pending',
+      status: isEdit ? editingOrder?.status ?? 'pending' : 'pending',
       first_name: firstName.trim(),
       last_name: lastName.trim(),
       customer_phone: `${COUNTRY_CODE}${phone.trim()}`,
@@ -192,25 +249,41 @@ export const OrderForm: React.FC = () => {
         ? { coupon_code: coupons.map((c) => c.code), coupon_data: coupons }
         : {}),
       ...(customerNumericId ? { user_id: customerNumericId } : {}),
-      ...(isGuest && createAccount
+      ...(!isEdit && isGuest && createAccount
         ? { create_account: true, password: password.trim() }
         : {}),
-      ...(isManager && managerStoreId
+      ...(!isEdit && isManager && managerStoreId
         ? { store_location: managerStoreId }
+        : {}),
+      ...(!isEdit && isAdmin && storeLocationId
+        ? { store_location: storeLocationId }
         : {}),
     };
 
     try {
-      await createOrder.mutateAsync(payload);
-      router.replace('/(tabs)/orders');
+      if (isEdit && orderId) {
+        await updateOrder.mutateAsync({ id: orderId, payload });
+        router.back();
+      } else {
+        await createOrder.mutateAsync(payload);
+        router.replace('/(tabs)/orders');
+      }
     } catch {
       // handled by hook
     }
   };
 
+  if (isEdit && loadingOrder && !initialized) {
+    return (
+      <View className="flex-1 items-center justify-center py-16">
+        <ActivityIndicator size="large" color="#6FA25F" />
+      </View>
+    );
+  }
+
   return (
     <View className="px-4 py-5 gap-5">
-      <SectionHeading title="New Order" />
+      <SectionHeading title={isEdit ? 'Edit Order' : 'New Order'} />
 
       {/* 1. Customer */}
       <CustomerSelectField value={customer} onChange={handleCustomer} />
@@ -313,6 +386,17 @@ export const OrderForm: React.FC = () => {
             numberOfLines={2}
           />
 
+          {/* Admin-only: assign a store location while creating */}
+          {!isEdit && isAdmin && (
+            <SingleSelectField
+              label="Store Location"
+              options={branchOptions}
+              value={storeLocationId}
+              onChange={setStoreLocationId}
+              placeholder="Assign a store (optional)"
+            />
+          )}
+
           <View className="h-px bg-gray-100 dark:bg-gray-800" />
 
           {/* 4. Payment method */}
@@ -368,9 +452,12 @@ export const OrderForm: React.FC = () => {
           />
 
           <View className="pb-8">
-            <Button onPress={handleSubmit} loading={createOrder.isPending}>
+            <Button
+              onPress={handleSubmit}
+              loading={createOrder.isPending || updateOrder.isPending}
+            >
               <Text className="text-white font-semibold text-base">
-                Create Order
+                {isEdit ? 'Update Order' : 'Create Order'}
               </Text>
             </Button>
           </View>

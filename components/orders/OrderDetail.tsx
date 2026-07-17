@@ -241,12 +241,28 @@ export const OrderDetail: React.FC = () => {
 
       {/* Actions */}
       <TouchableOpacity
-        onPress={() => setStatusModal(true)}
+        onPress={() =>
+          router.push({
+            pathname: '/orders/order-form',
+            params: { id: String(order.id) },
+          })
+        }
         className="flex-row items-center justify-center py-3.5 rounded-xl bg-primary-600"
         activeOpacity={0.85}
       >
-        <Ionicons name="sync-outline" size={18} color="#FFF" />
+        <Ionicons name="create-outline" size={18} color="#FFF" />
         <Text className="text-white font-semibold text-base ml-2">
+          Edit Order
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => setStatusModal(true)}
+        className="flex-row items-center justify-center py-3.5 rounded-xl border border-primary-200 dark:border-primary-900"
+        activeOpacity={0.85}
+      >
+        <Ionicons name="sync-outline" size={18} color="#6FA25F" />
+        <Text className="text-primary-600 dark:text-primary-400 font-semibold text-base ml-2">
           Update Status
         </Text>
       </TouchableOpacity>

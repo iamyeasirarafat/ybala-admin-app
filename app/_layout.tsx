@@ -158,7 +158,7 @@ export default function RootLayout() {
           />
           <Stack.Screen
             name="orders/order-form"
-            options={{ title: 'New Order', headerLeft: backButton }}
+            options={{ title: 'Order', headerLeft: backButton }}
           />
           <Stack.Screen
             name="orders/order-detail"
