@@ -1,7 +1,9 @@
 import { settingsService } from '@/services/settingsService';
 import {
   BrandStyle,
+  MetaPixel,
   OtherSettings,
+  SeoInfo,
   ShopSettings,
   StoreLocation,
 } from '@/types';
@@ -15,6 +17,8 @@ const keys = {
   other: ['settings', 'other'] as const,
   stores: ['settings', 'store_location'] as const,
   managers: ['settings', 'managers'] as const,
+  metaPixel: ['settings', 'meta_pixel'] as const,
+  seoInfo: ['settings', 'seo_info'] as const,
 };
 
 const STALE = 5 * 60 * 1000;
@@ -148,6 +152,54 @@ export const useDeleteStoreLocation = () => {
     },
     onError: (error) => {
       toast.error(extractApiError(error, 'Failed to delete store location.'));
+    },
+  });
+};
+
+// ---------------- Website SEO ----------------
+
+export const useMetaPixel = () =>
+  useQuery({
+    queryKey: keys.metaPixel,
+    queryFn: settingsService.getMetaPixel,
+    staleTime: STALE,
+    retry: false,
+  });
+
+export const useUpdateMetaPixel = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: Partial<MetaPixel>) =>
+      settingsService.updateMetaPixel(payload),
+    onSuccess: (data) => {
+      qc.setQueryData(keys.metaPixel, data);
+      toast.success('Pixel settings updated successfully.');
+    },
+    onError: (error) => {
+      toast.error(extractApiError(error, 'Failed to update pixel settings.'));
+    },
+  });
+};
+
+export const useSeoInfo = () =>
+  useQuery({
+    queryKey: keys.seoInfo,
+    queryFn: settingsService.getSeoInfo,
+    staleTime: STALE,
+    retry: false,
+  });
+
+export const useUpdateSeoInfo = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: Partial<SeoInfo>) =>
+      settingsService.updateSeoInfo(payload),
+    onSuccess: (data) => {
+      qc.setQueryData(keys.seoInfo, data);
+      toast.success('SEO info updated successfully.');
+    },
+    onError: (error) => {
+      toast.error(extractApiError(error, 'Failed to update SEO info.'));
     },
   });
 };

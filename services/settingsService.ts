@@ -1,8 +1,10 @@
 import {
   BrandStyle,
   Manager,
+  MetaPixel,
   OtherSettings,
   Paginated,
+  SeoInfo,
   ShopSettings,
   StoreLocation,
 } from '@/types';
@@ -105,5 +107,32 @@ export const settingsService = {
       params: { userType: 'manager', limit: 100 },
     });
     return Array.isArray(res.data) ? res.data : res.data.results ?? [];
+  },
+
+  // ---- Website SEO: meta pixel (singleton) ----
+  // GET/PUT /settings/meta_pixel/1/
+  getMetaPixel: async (): Promise<MetaPixel> => {
+    const res = await protectedApi.get<MetaPixel>(
+      `/settings/meta_pixel/${SINGLETON_ID}/`,
+    );
+    return res.data;
+  },
+  updateMetaPixel: async (payload: Partial<MetaPixel>): Promise<MetaPixel> => {
+    const res = await protectedApi.put<MetaPixel>(
+      `/settings/meta_pixel/${SINGLETON_ID}/`,
+      payload,
+    );
+    return res.data;
+  },
+
+  // ---- Website SEO: page seo info (singleton APIView) ----
+  // GET/PUT /settings/seo_info
+  getSeoInfo: async (): Promise<SeoInfo> => {
+    const res = await protectedApi.get<SeoInfo>('/settings/seo_info');
+    return res.data;
+  },
+  updateSeoInfo: async (payload: Partial<SeoInfo>): Promise<SeoInfo> => {
+    const res = await protectedApi.put<SeoInfo>('/settings/seo_info', payload);
+    return res.data;
   },
 };

@@ -84,6 +84,46 @@ export default function RootLayout() {
             name="settings/others-settings"
             options={{ title: 'Others', headerLeft: backButton }}
           />
+          <Stack.Screen
+            name="settings/website-seo"
+            options={{ title: 'Website SEO', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="settings/page-seo"
+            options={{ title: 'Page SEO', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="settings/pixels"
+            options={{ title: 'Pixels', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="promotion/promo-code"
+            options={{ title: 'Promo Code', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="promotion/coupon-form"
+            options={{ title: 'Coupon', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="promotion/promo-banner"
+            options={{ title: 'Promo Banner', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="promotion/home-slider"
+            options={{ title: 'Home Page Slider', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="promotion/header-banner"
+            options={{ title: 'Header Banner', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="promotion/mobile-header-banner"
+            options={{ title: 'Mobile Header Banner', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="promotion/popup-banner"
+            options={{ title: 'Popup Banner', headerLeft: backButton }}
+          />
         </Stack>
         <StatusBar style="auto" />
       </AuthProvider>

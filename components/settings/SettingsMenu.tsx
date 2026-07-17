@@ -37,6 +37,12 @@ export const SettingsMenu: React.FC = () => {
         onPress={() => router.push('/settings/store-location')}
       />
       <MenuItem
+        icon="search-outline"
+        text="Website SEO"
+        subtitle="Meta tags & tracking pixels"
+        onPress={() => router.push('/settings/website-seo')}
+      />
+      <MenuItem
         icon="options-outline"
         text="Others"
         subtitle="Contact links & page content"

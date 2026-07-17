@@ -64,3 +64,49 @@ export interface ImageUpload {
   name: string;
   type: string;
 }
+
+// ---- Website SEO ----
+export interface MetaPixel {
+  id?: number;
+  enabled: boolean;
+  pixel_enabled: boolean;
+  pixel_id?: string;
+  enable_conversation: boolean;
+  enable_matching: boolean;
+  conversation_api_key?: string;
+  text_event_code?: string;
+  verification_meta_tag?: string[];
+}
+
+export interface SeoMetaBlock {
+  image?: string;
+  meta_title?: string;
+  meta_description?: string;
+}
+
+export interface SeoPageLocale {
+  meta_title?: string;
+  meta_description?: string;
+  schema_type?: string;
+  meta?: SeoMetaBlock;
+  twitter?: SeoMetaBlock;
+}
+
+export interface SeoPage {
+  en?: SeoPageLocale;
+  ar?: SeoPageLocale;
+}
+
+export type SeoPageName =
+  | 'home_page'
+  | 'product_page'
+  | 'contact_page'
+  | 'location_page';
+
+export interface SeoInfo {
+  id?: number;
+  home_page?: SeoPage;
+  product_page?: SeoPage;
+  contact_page?: SeoPage;
+  location_page?: SeoPage;
+}
