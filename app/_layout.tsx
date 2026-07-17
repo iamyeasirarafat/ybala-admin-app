@@ -156,6 +156,14 @@ export default function RootLayout() {
             name="menu/tag-form"
             options={{ title: 'Tag', headerLeft: backButton }}
           />
+          <Stack.Screen
+            name="orders/order-form"
+            options={{ title: 'New Order', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="orders/order-detail"
+            options={{ title: 'Order Details', headerLeft: backButton }}
+          />
         </Stack>
         <StatusBar style="auto" />
       </AuthProvider>
