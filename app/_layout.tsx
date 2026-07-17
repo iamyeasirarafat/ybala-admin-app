@@ -97,6 +97,14 @@ export default function RootLayout() {
             options={{ title: 'Pixels', headerLeft: backButton }}
           />
           <Stack.Screen
+            name="users/index"
+            options={{ title: 'User Management', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="users/user-form"
+            options={{ title: 'User', headerLeft: backButton }}
+          />
+          <Stack.Screen
             name="promotion/promo-code"
             options={{ title: 'Promo Code', headerLeft: backButton }}
           />
