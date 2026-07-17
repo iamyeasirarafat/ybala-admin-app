@@ -2,6 +2,7 @@ export * from './analytics';
 export * from './settings';
 export * from './promotion';
 export * from './user';
+export * from './menu';
 
 export type UserType = 'admin' | 'manager';
 

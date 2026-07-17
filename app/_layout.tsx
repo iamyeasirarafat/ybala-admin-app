@@ -132,6 +132,30 @@ export default function RootLayout() {
             name="promotion/popup-banner"
             options={{ title: 'Popup Banner', headerLeft: backButton }}
           />
+          <Stack.Screen
+            name="menu/menu-list"
+            options={{ title: 'Menu List', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="menu/menu-form"
+            options={{ title: 'Menu', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="menu/categories"
+            options={{ title: 'Category', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="menu/category-form"
+            options={{ title: 'Category', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="menu/tags"
+            options={{ title: 'Tag', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="menu/tag-form"
+            options={{ title: 'Tag', headerLeft: backButton }}
+          />
         </Stack>
         <StatusBar style="auto" />
       </AuthProvider>
