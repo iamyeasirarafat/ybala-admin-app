@@ -1,13 +1,11 @@
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme } from 'nativewind';
 import { Colors } from '@/constants/colors';
-import { useAuthStore } from '@/store/auth.store';
+import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
+import { useColorScheme } from 'nativewind';
 
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
-  const isManager = useAuthStore((s) => s.userType === 'manager');
 
   return (
     <Tabs
@@ -44,15 +42,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="analytics"
-        options={{
-          title: 'Analytics',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="bar-chart" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="menu"
         options={{
           title: 'Menu',
@@ -62,13 +51,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="promotion"
+        name="analytics"
         options={{
-          title: 'Promotion',
-          // Managers have no access to promotions — hide the tab entirely.
-          href: isManager ? null : undefined,
+          title: 'Analytics',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="pricetags" size={size} color={color} />
+            <Ionicons name="bar-chart" size={size} color={color} />
           ),
         }}
       />

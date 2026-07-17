@@ -1,12 +1,3 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
 import { SingleSelectField } from '@/components/menu/SingleSelectField';
 import { TypeVariationBuilder } from '@/components/menu/TypeVariationBuilder';
 import { MultiSelectField } from '@/components/promotion/MultiSelectField';
@@ -20,6 +11,7 @@ import {
   useTagOptions,
 } from '@/hooks/useMenu';
 import { promotionService } from '@/services/promotionService';
+import { useAuthStore } from '@/store/auth.store';
 import {
   ImageUpload,
   MenuKind,
@@ -27,6 +19,15 @@ import {
   MenuTypeGroup,
 } from '@/types';
 import { toast } from '@/utils/toast';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 type Lang = 'en' | 'ar';
 type SeoKind = 'meta' | 'twitter';
@@ -67,6 +68,7 @@ const normalizeLocale = (
 });
 
 export const MenuForm: React.FC = () => {
+  const isManager = useAuthStore((s) => s.userType === 'manager');
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const menuId = id ? Number(id) : undefined;
@@ -455,11 +457,13 @@ export const MenuForm: React.FC = () => {
       )}
 
       <View className="pb-8">
-        <Button onPress={handleSave} loading={saving || saveMenu.isPending}>
+        {
+          !isManager && <Button onPress={handleSave} loading={saving || saveMenu.isPending}>
           <Text className="text-white font-semibold text-base">
             {menuId ? 'Update' : 'Create'}
           </Text>
         </Button>
+        }
       </View>
     </View>
   );

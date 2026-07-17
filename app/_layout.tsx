@@ -2,6 +2,7 @@ import { AuthProvider } from '@/providers/AuthProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { setNavigationHandler } from '@/services/api';
 import { useAuthStore } from '@/store/auth.store';
+import { routeFromNotification, setPendingRoute } from '@/utils/deepLink';
 import { ToastContainer } from '@/utils/toast';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, router } from 'expo-router';
@@ -26,6 +27,29 @@ export default function RootLayout() {
     OneSignal.Debug.setLogLevel(LogLevel.Verbose);
     OneSignal.initialize('43e00645-7378-4b28-b67e-03379eefd79f');
     OneSignal.Notifications.requestPermission(true);
+
+    // Handle taps on a notification -> deep link into the app.
+    const onClick = (event: any) => {
+      // We navigate ourselves, so stop OneSignal from also opening the URL
+      // (avoids a double navigation when a launch URL is set).
+      event?.preventDefault?.();
+
+      const route = routeFromNotification(event?.notification);
+      if (!route) return;
+
+      if (useAuthStore.getState().isAuthenticated) {
+        router.push(route as any);
+      } else {
+        // Not logged in yet (or cold start before auth restores). Stash the
+        // target; AuthProvider resumes to it once the session is ready.
+        setPendingRoute(route);
+      }
+    };
+
+    OneSignal.Notifications.addEventListener('click', onClick);
+    return () => {
+      OneSignal.Notifications.removeEventListener('click', onClick);
+    };
   }, []);
 
   useEffect(() => {
@@ -112,6 +136,10 @@ export default function RootLayout() {
           <Stack.Screen
             name="users/user-form"
             options={{ title: 'User', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="promotion/index"
+            options={{ title: 'Promotion', headerLeft: backButton }}
           />
           <Stack.Screen
             name="promotion/promo-code"

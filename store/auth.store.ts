@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import { OneSignal } from 'react-native-onesignal';
 import { AuthState, LoginResponse, UserType } from '@/types';
 import {
   saveTokens,
@@ -63,6 +64,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     try {
+      // Unbind this device from the user so it stops receiving their pushes.
+      OneSignal.logout();
+
       await deleteAllTokens();
 
       set({

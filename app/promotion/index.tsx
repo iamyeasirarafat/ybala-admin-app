@@ -8,7 +8,6 @@ export default function PromotionScreen() {
 
   return (
     <Screen scroll>
-
       <View>
         <MenuItem
           icon="pricetag-outline"

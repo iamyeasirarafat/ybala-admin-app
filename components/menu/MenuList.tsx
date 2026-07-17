@@ -1,3 +1,8 @@
+import { SingleSelectField } from '@/components/menu/SingleSelectField';
+import { useCategoryOptions, useDeleteMenu, useMenus } from '@/hooks/useMenu';
+import { useAuthStore } from '@/store/auth.store';
+import { MenuItem } from '@/types';
+import { mediaUrl } from '@/utils/format';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -11,10 +16,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SingleSelectField } from '@/components/menu/SingleSelectField';
-import { useCategoryOptions, useDeleteMenu, useMenus } from '@/hooks/useMenu';
-import { MenuItem } from '@/types';
-import { mediaUrl } from '@/utils/format';
 
 const PAGE_SIZE = 15;
 
@@ -28,9 +29,11 @@ interface MenuRowProps {
   item: MenuItem;
   onEdit: (id: number) => void;
   onDelete: (item: MenuItem) => void;
+  isManager: boolean;
 }
 
-const MenuRow = React.memo(({ item, onEdit, onDelete }: MenuRowProps) => {
+const MenuRow = React.memo(
+  ({ item, onEdit, onDelete, isManager }: MenuRowProps) => {
   const priceLabel =
     item.type === 'simple' ? `${item.price ?? 0} AED` : 'Variation';
 
@@ -79,16 +82,20 @@ const MenuRow = React.memo(({ item, onEdit, onDelete }: MenuRowProps) => {
           {item.available ? 'Active' : 'Off'}
         </Text>
       </View>
-      <TouchableOpacity onPress={() => onDelete(item)} hitSlop={8}>
-        <Ionicons name="trash-outline" size={20} color="#EF4444" />
-      </TouchableOpacity>
+      {!isManager && (
+        <TouchableOpacity onPress={() => onDelete(item)} hitSlop={8}>
+          <Ionicons name="trash-outline" size={20} color="#EF4444" />
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
-});
+  },
+);
 MenuRow.displayName = 'MenuRow';
 
 export const MenuList: React.FC = () => {
   const router = useRouter();
+  const isManager = useAuthStore((s) => s.userType === 'manager');
   const [search, setSearch] = useState('');
   const [availability, setAvailability] = useState('all');
   const [category, setCategory] = useState<number | null>(null);
@@ -138,9 +145,14 @@ export const MenuList: React.FC = () => {
 
   const renderItem = useCallback(
     ({ item }: { item: MenuItem }) => (
-      <MenuRow item={item} onEdit={onEdit} onDelete={onDelete} />
+      <MenuRow
+        item={item}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        isManager={isManager}
+      />
     ),
-    [onEdit, onDelete],
+    [onEdit, onDelete, isManager],
   );
 
   const header = useMemo(
@@ -162,14 +174,16 @@ export const MenuList: React.FC = () => {
               style={{ padding: 0, fontSize: 15 }}
             />
           </View>
-          <TouchableOpacity
-            onPress={() => router.push('/menu/menu-form')}
-            className="flex-row items-center px-3 py-2.5 rounded-xl bg-primary-600"
-            activeOpacity={0.8}
-          >
-            <Ionicons name="add" size={18} color="#FFF" />
-            <Text className="text-white font-semibold text-sm ml-1">New</Text>
-          </TouchableOpacity>
+          {!isManager && (
+            <TouchableOpacity
+              onPress={() => router.push('/menu/menu-form')}
+              className="flex-row items-center px-3 py-2.5 rounded-xl bg-primary-600"
+              activeOpacity={0.8}
+            >
+              <Ionicons name="add" size={18} color="#FFF" />
+              <Text className="text-white font-semibold text-sm ml-1">New</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Availability filter */}
@@ -212,7 +226,7 @@ export const MenuList: React.FC = () => {
         />
       </View>
     ),
-    [search, availability, category, categoryOptions, router],
+    [search, availability, category, categoryOptions, router, isManager],
   );
 
   const footer = useMemo(() => {

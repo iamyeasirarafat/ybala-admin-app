@@ -43,6 +43,12 @@ export const SettingsMenu: React.FC = () => {
         onPress={() => router.push('/settings/store-location')}
       />
       <MenuItem
+        icon="pricetags-outline"
+        text="Promotion"
+        subtitle="Promo codes & banners"
+        onPress={() => router.push('/promotion')}
+      />
+      <MenuItem
         icon="search-outline"
         text="Website SEO"
         subtitle="Meta tags & tracking pixels"

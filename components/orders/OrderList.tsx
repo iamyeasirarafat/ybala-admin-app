@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   Text,
   TextInput,
   TouchableOpacity,
@@ -92,7 +93,9 @@ export const OrderList: React.FC = () => {
   const [status, setStatus] = useState('all');
   const [limit, setLimit] = useState(PAGE_SIZE);
 
-  const { data, isLoading, isFetching } = useOrders({
+  const [refreshing, setRefreshing] = useState(false);
+
+  const { data, isLoading, isFetching, refetch } = useOrders({
     role,
     status,
     search,
@@ -105,6 +108,15 @@ export const OrderList: React.FC = () => {
   const canLoadMore = orders.length < total;
 
   const resetPage = () => setLimit(PAGE_SIZE);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   const onPress = useCallback(
     (id: number) =>
@@ -244,6 +256,14 @@ export const OrderList: React.FC = () => {
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
       showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor="#6FA25F"
+          colors={['#6FA25F']}
+        />
+      }
       onEndReachedThreshold={0.4}
       onEndReached={loadMore}
       removeClippedSubviews

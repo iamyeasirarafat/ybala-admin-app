@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useRouter, useSegments } from 'expo-router';
 import { useAuthStore, initializeAuth } from '@/store/auth.store';
+import { consumePendingRoute } from '@/utils/deepLink';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -30,9 +31,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!isAuthenticated && !inAuthGroup) {
       // Redirect to login if not authenticated
       router.replace('/(auth)/login');
-    } else if (isAuthenticated && inAuthGroup) {
-      // Redirect to tabs if authenticated
-      router.replace('/(tabs)');
+    } else if (isAuthenticated) {
+      // Resume a pending deep link (from a notification tap while logged out
+      // or during cold start) as soon as the session is ready.
+      const pending = consumePendingRoute();
+      if (pending) {
+        router.replace(pending as any);
+      } else if (inAuthGroup) {
+        // Otherwise, land on the tabs after a normal login.
+        router.replace('/(tabs)');
+      }
     }
   }, [isAuthenticated, segments, isLoading]);
 

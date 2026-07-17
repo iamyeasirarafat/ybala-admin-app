@@ -11,11 +11,13 @@ import {
   View,
 } from 'react-native';
 import { useCategories, useDeleteCategory } from '@/hooks/useMenu';
+import { useAuthStore } from '@/store/auth.store';
 import { Category } from '@/types';
 import { mediaUrl } from '@/utils/format';
 
 export const CategoryList: React.FC = () => {
   const router = useRouter();
+  const isManager = useAuthStore((s) => s.userType === 'manager');
   const [search, setSearch] = useState('');
   const { data: categories = [], isLoading } = useCategories(search);
   const deleteCategory = useDeleteCategory();
@@ -45,14 +47,16 @@ export const CategoryList: React.FC = () => {
             style={{ padding: 0, fontSize: 15 }}
           />
         </View>
-        <TouchableOpacity
-          onPress={() => router.push('/menu/category-form')}
-          className="flex-row items-center px-3 py-2.5 rounded-xl bg-primary-600"
-          activeOpacity={0.8}
-        >
-          <Ionicons name="add" size={18} color="#FFF" />
-          <Text className="text-white font-semibold text-sm ml-1">New</Text>
-        </TouchableOpacity>
+        {!isManager && (
+          <TouchableOpacity
+            onPress={() => router.push('/menu/category-form')}
+            className="flex-row items-center px-3 py-2.5 rounded-xl bg-primary-600"
+            activeOpacity={0.8}
+          >
+            <Ionicons name="add" size={18} color="#FFF" />
+            <Text className="text-white font-semibold text-sm ml-1">New</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {isLoading ? (
@@ -71,12 +75,16 @@ export const CategoryList: React.FC = () => {
           {categories.map((category) => (
             <TouchableOpacity
               key={category.id}
-              activeOpacity={0.7}
-              onPress={() =>
-                router.push({
-                  pathname: '/menu/category-form',
-                  params: { id: String(category.id) },
-                })
+              activeOpacity={isManager ? 1 : 0.7}
+              disabled={isManager}
+              onPress={
+                isManager
+                  ? undefined
+                  : () =>
+                      router.push({
+                        pathname: '/menu/category-form',
+                        params: { id: String(category.id) },
+                      })
               }
               className="flex-row items-center p-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800"
             >
@@ -100,13 +108,15 @@ export const CategoryList: React.FC = () => {
                   {category.items === 1 ? '' : 's'}
                 </Text>
               </View>
-              <TouchableOpacity
-                onPress={() => confirmDelete(category)}
-                hitSlop={8}
-                className="ml-2"
-              >
-                <Ionicons name="trash-outline" size={20} color="#EF4444" />
-              </TouchableOpacity>
+              {!isManager && (
+                <TouchableOpacity
+                  onPress={() => confirmDelete(category)}
+                  hitSlop={8}
+                  className="ml-2"
+                >
+                  <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                </TouchableOpacity>
+              )}
             </TouchableOpacity>
           ))}
         </View>
