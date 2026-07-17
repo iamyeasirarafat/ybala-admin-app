@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "82294698505",
+    "project_id": "ybala-admin-app",
+    "storage_bucket": "ybala-admin-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:82294698505:android:c3b930f027c202e5363ed8",
+        "android_client_info": {
+          "package_name": "com.ybala.adminApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCG7JsRKyASEwaDTmOtuxDPmzwvxQIf5q0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

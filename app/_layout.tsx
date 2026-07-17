@@ -1,16 +1,18 @@
-import '../global.css';
+import { AuthProvider } from '@/providers/AuthProvider';
+import { QueryProvider } from '@/providers/QueryProvider';
+import { setNavigationHandler } from '@/services/api';
+import { useAuthStore } from '@/store/auth.store';
+import { ToastContainer } from '@/utils/toast';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
 import { useEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
+import { LogLevel, OneSignal } from 'react-native-onesignal';
 import 'react-native-reanimated';
-import { QueryProvider } from '@/providers/QueryProvider';
-import { AuthProvider } from '@/providers/AuthProvider';
-import { setNavigationHandler } from '@/services/api';
-import { useAuthStore } from '@/store/auth.store';
-import { ToastContainer } from '@/utils/toast';
+import '../global.css';
+
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -18,6 +20,13 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
+
+  //onsignal setup
+  useEffect(() => {
+    OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+    OneSignal.initialize('43e00645-7378-4b28-b67e-03379eefd79f');
+    OneSignal.Notifications.requestPermission(true);
+  }, []);
 
   useEffect(() => {
     // When a protected request fails auth (refresh expired), clear the
