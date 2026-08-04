@@ -1,3 +1,7 @@
+import { useOrders, useUpdateOrderStatus } from '@/hooks/useOrder';
+import { useAuthStore } from '@/store/auth.store';
+import { Order, OrderRole, OrderStatus, ShippingAddress } from '@/types';
+import { formatCurrency } from '@/utils/format';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -10,78 +14,125 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useOrders } from '@/hooks/useOrder';
-import { useAuthStore } from '@/store/auth.store';
-import { Order, OrderRole } from '@/types';
-import { formatCurrency } from '@/utils/format';
 import { OrderStatusBadge } from './OrderStatusBadge';
 import { STATUS_FILTER_TABS } from './orderStatus';
 
 const PAGE_SIZE = 15;
 
-const formatDate = (iso?: string) => {
-  if (!iso) return '';
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+const formatAddress = (item: Order) => {
+  if (item.is_pickup) {
+    return `Pickup${item.branch_info?.en_title ? ` · ${item.branch_info.en_title}` : ''}`;
+  }
+  const address = item.shipping_address as ShippingAddress | undefined;
+  return [address?.street, address?.city].filter(Boolean).join(', ');
+};
+
+const formatItemsSummary = (item: Order) => {
+  const lines = item.carts ?? [];
+  if (lines.length === 0) return 'No items';
+  return lines
+    .map((line) => {
+      const name = line.menu_data?.translations?.en?.name || `Item #${line.menu}`;
+      return `${line.quantity} x ${name}`;
+    })
+    .join(', ');
 };
 
 interface OrderRowProps {
   item: Order;
   onPress: (id: number) => void;
+  onAdvanceStatus: (id: number, status: OrderStatus) => void;
+  isUpdating: boolean;
 }
 
-const OrderRow = React.memo(({ item, onPress }: OrderRowProps) => {
-  const name = item.full_name ?? '';
-  const items = item.carts?.length ?? 0;
-  return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={() => onPress(item.id)}
-      className="p-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 mb-3"
-    >
-      <View className="flex-row items-center justify-between">
-        <Text className="text-base font-bold text-gray-900 dark:text-white">
-          #{item.id}
-        </Text>
-        <OrderStatusBadge status={item.status} />
-      </View>
+const OrderRow = React.memo(
+  ({ item, onPress, onAdvanceStatus, isUpdating }: OrderRowProps) => {
+    const name = item.full_name || 'Guest';
+    const nextAction =
+      item.status === 'pending'
+        ? { label: 'Accept', next: 'processing' as OrderStatus }
+        : item.status === 'processing'
+          ? { label: 'Complete', next: 'completed' as OrderStatus }
+          : null;
 
-      <View className="flex-row items-center justify-between mt-2">
-        <View className="flex-1 pr-3">
+    return (
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => onPress(item.id)}
+        className="p-4 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 mb-3"
+      >
+        <View className="flex-row items-start justify-between">
           <Text
-            className="text-sm font-semibold text-gray-800 dark:text-gray-100"
+            className="flex-1 text-base font-bold text-gray-900 dark:text-white pr-2"
             numberOfLines={1}
           >
-            {name || 'Guest'}
+            {name}
           </Text>
-          <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            {formatDate(item.created_at)} · {items} item{items === 1 ? '' : 's'}
+          <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+            Order Id #{item.id}
           </Text>
         </View>
-        <Text className="text-base font-bold text-primary-600 dark:text-primary-400">
-          {formatCurrency(Number(item.price ?? item.total_price ?? 0))}
-        </Text>
-      </View>
 
-      <View className="flex-row items-center mt-2">
-        <Ionicons
-          name={item.is_pickup ? 'storefront-outline' : 'bicycle-outline'}
-          size={14}
-          color="#9CA3AF"
-        />
-        <Text className="text-xs text-gray-500 dark:text-gray-400 ml-1">
-          {item.is_pickup
-            ? `Pickup${item.branch_info?.en_title ? ` · ${item.branch_info.en_title}` : ''}`
-            : 'Delivery'}
+        {!!item.customer_phone && (
+          <Text className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+            {item.customer_phone}
+          </Text>
+        )}
+        <Text
+          className="text-sm text-gray-600 dark:text-gray-300"
+          numberOfLines={1}
+        >
+          {formatAddress(item)}
         </Text>
-      </View>
-    </TouchableOpacity>
-  );
-});
+
+        <View className="flex-row items-stretch mt-3">
+          <View className="flex-1 rounded-xl bg-gray-50 dark:bg-gray-900/50 p-3 mr-3 justify-center">
+            <Text
+              className="text-sm text-gray-700 dark:text-gray-200"
+              numberOfLines={2}
+            >
+              {formatItemsSummary(item)}
+            </Text>
+            <Text className="text-base font-bold text-gray-900 dark:text-white mt-1">
+              {formatCurrency(Number(item.price ?? item.total_price ?? 0))}
+            </Text>
+          </View>
+
+          <View className="justify-center gap-2">
+            <TouchableOpacity
+              onPress={() => onPress(item.id)}
+              activeOpacity={0.8}
+              className="p-2 rounded-lg bg-primary-600 items-center"
+            >
+              <Text className="text-xs font-bold text-white">See Details</Text>
+            </TouchableOpacity>
+
+            {nextAction ? (
+              <TouchableOpacity
+                onPress={() => onAdvanceStatus(item.id, nextAction.next)}
+                activeOpacity={0.8}
+                disabled={isUpdating}
+                className="px-4 py-2 rounded-lg bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 items-center "
+              >
+                {isUpdating ? (
+                  <ActivityIndicator size="small" color="#6FA25F" />
+                ) : (
+                  <Text className="text-xs font-bold text-gray-900 dark:text-white">
+                    {nextAction.label}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            ) : (
+              <View className="items-center">
+                <OrderStatusBadge status={item.status} />
+              </View>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  },
+);
 OrderRow.displayName = 'OrderRow';
 
 export const OrderList: React.FC = () => {
@@ -102,6 +153,8 @@ export const OrderList: React.FC = () => {
     limit,
     page: 1,
   });
+
+  const updateStatus = useUpdateOrderStatus();
 
   const orders = data?.results ?? [];
   const total = data?.count ?? 0;
@@ -136,9 +189,23 @@ export const OrderList: React.FC = () => {
     if (canLoadMore && !isFetching) setLimit((l) => l + PAGE_SIZE);
   }, [canLoadMore, isFetching]);
 
+  const onAdvanceStatus = useCallback(
+    (id: number, next: OrderStatus) => updateStatus.mutate({ id, status: next }),
+    [updateStatus],
+  );
+
   const renderItem = useCallback(
-    ({ item }: { item: Order }) => <OrderRow item={item} onPress={onPress} />,
-    [onPress],
+    ({ item }: { item: Order }) => (
+      <OrderRow
+        item={item}
+        onPress={onPress}
+        onAdvanceStatus={onAdvanceStatus}
+        isUpdating={
+          updateStatus.isPending && updateStatus.variables?.id === item.id
+        }
+      />
+    ),
+    [onPress, onAdvanceStatus, updateStatus.isPending, updateStatus.variables],
   );
 
   const header = useMemo(
