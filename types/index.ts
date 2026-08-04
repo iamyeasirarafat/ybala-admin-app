@@ -11,8 +11,7 @@ export interface User {
   id: number;
   email?: string;
   phoneNumber?: string;
-  first_name?: string;
-  last_name?: string;
+  full_name?: string;
   userType: UserType;
   profile_image?: string;
 }
@@ -50,8 +49,7 @@ export interface ProfileResponse {
   id: number;
   email?: string;
   phoneNumber?: string;
-  first_name?: string;
-  last_name?: string;
+  full_name?: string;
   userType: UserType;
   profile_image?: string;
 }

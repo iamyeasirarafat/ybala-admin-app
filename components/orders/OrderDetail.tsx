@@ -91,7 +91,7 @@ export const OrderDetail: React.FC = () => {
     );
   }
 
-  const name = `${order.first_name ?? ''} ${order.last_name ?? ''}`.trim();
+  const name = order.full_name ?? '';
   const address = order.shipping_address as ShippingAddress | undefined;
   const carts: CartLine[] = order.carts ?? [];
   const discount = Number(order.discount_price ?? 0);
@@ -193,6 +193,11 @@ export const OrderDetail: React.FC = () => {
                 <Text className="text-xs text-gray-500 dark:text-gray-400">
                   {formatCurrency(Number(line.price))} × {line.quantity}
                 </Text>
+                {!!line.instruction && (
+                  <Text className="text-xs text-gray-500 dark:text-gray-400 italic mt-0.5">
+                    Note: {line.instruction}
+                  </Text>
+                )}
               </View>
               <Text className="text-sm font-semibold text-gray-900 dark:text-white">
                 {formatCurrency(lineTotal)}

@@ -134,7 +134,7 @@ export const promotionService = {
     const res = await protectedApi.get<ListResp<any>>('/user/');
     return toArray(res.data).map((u) => ({
       id: u.id,
-      name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email || `User #${u.id}`,
+      name: u.full_name || u.email || `User #${u.id}`,
       subtitle: u.email || u.phoneNumber || '',
     }));
   },

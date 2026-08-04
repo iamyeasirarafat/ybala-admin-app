@@ -16,10 +16,7 @@ interface ManagerSelectorProps {
   onChange: (managerId: number | null, manager: Manager | null) => void;
 }
 
-const managerName = (m: Manager) => {
-  const name = `${m.first_name || ''} ${m.last_name || ''}`.trim();
-  return name || m.email || 'Manager';
-};
+const managerName = (m: Manager) => m.full_name || m.email || 'Manager';
 
 export const ManagerSelector: React.FC<ManagerSelectorProps> = ({
   value,

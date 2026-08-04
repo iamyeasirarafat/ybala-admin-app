@@ -2,8 +2,7 @@ import { protectedApi } from './api';
 import { ManagedUser, Paginated, ProfileResponse, UserPayload } from '@/types';
 
 export interface UpdateProfilePayload {
-  first_name?: string;
-  last_name?: string;
+  full_name?: string;
   phoneNumber?: string;
   email?: string;
   image?: string; // base64 data URL

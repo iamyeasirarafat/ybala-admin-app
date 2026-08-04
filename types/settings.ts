@@ -33,8 +33,7 @@ export interface OtherSettings {
 
 export interface Manager {
   id: number;
-  first_name?: string;
-  last_name?: string;
+  full_name?: string;
   email?: string;
   phoneNumber?: string | null;
   userType?: string;

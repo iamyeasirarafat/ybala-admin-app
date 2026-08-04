@@ -65,8 +65,7 @@ export const OrderForm: React.FC = () => {
   const updateOrder = useUpdateOrder();
 
   const [customer, setCustomer] = useState<SelectedCustomer | null>(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [createAccount, setCreateAccount] = useState(false);
@@ -107,15 +106,13 @@ export const OrderForm: React.FC = () => {
       o.user_data?.id
         ? {
             id: o.user_data.id,
-            first_name: o.first_name,
-            last_name: o.last_name,
+            full_name: o.full_name,
             phone: o.customer_phone,
             email: o.customer_email,
           }
-        : { id: 'guest', first_name: o.first_name, last_name: o.last_name },
+        : { id: 'guest', full_name: o.full_name },
     );
-    setFirstName(o.first_name || '');
-    setLastName(o.last_name || '');
+    setFullName(o.full_name || '');
     setPhone(stripCode(o.customer_phone));
     setEmail(o.customer_email || '');
     setMethod(o.is_pickup ? 'pickup' : 'delivery');
@@ -151,8 +148,7 @@ export const OrderForm: React.FC = () => {
 
   const handleCustomer = (c: SelectedCustomer) => {
     setCustomer(c);
-    setFirstName(c.first_name || '');
-    setLastName(c.last_name || '');
+    setFullName(c.full_name || '');
     setPhone(stripCode(c.phone));
     setEmail(c.email || '');
     setCreateAccount(false);
@@ -202,7 +198,7 @@ export const OrderForm: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!customer) return toast.error('Please select a customer.');
-    if (!firstName.trim()) return toast.error('First name is required.');
+    if (!fullName.trim()) return toast.error('Full name is required.');
     if (!phone.trim()) return toast.error('Phone number is required.');
     if (cart.length === 0) return toast.error('Add at least one item.');
 
@@ -235,8 +231,7 @@ export const OrderForm: React.FC = () => {
 
     const payload: CreateOrderPayload = {
       status: isEdit ? editingOrder?.status ?? 'pending' : 'pending',
-      first_name: firstName.trim(),
-      last_name: lastName.trim(),
+      full_name: fullName.trim(),
       customer_phone: `${COUNTRY_CODE}${phone.trim()}`,
       customer_email: email.trim(),
       payment_method: paymentMethod,
@@ -291,24 +286,12 @@ export const OrderForm: React.FC = () => {
       {customer && (
         <>
           <View className="gap-3">
-            <View className="flex-row gap-3">
-              <View className="flex-1">
-                <Input
-                  label="First Name"
-                  value={firstName}
-                  onChangeText={setFirstName}
-                  placeholder="John"
-                />
-              </View>
-              <View className="flex-1">
-                <Input
-                  label="Last Name"
-                  value={lastName}
-                  onChangeText={setLastName}
-                  placeholder="Doe"
-                />
-              </View>
-            </View>
+            <Input
+              label="Full Name"
+              value={fullName}
+              onChangeText={setFullName}
+              placeholder="John Doe"
+            />
             <Input
               label="Phone"
               value={phone}

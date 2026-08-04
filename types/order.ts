@@ -78,8 +78,7 @@ export interface BranchInfo {
 
 export interface OrderUserData {
   id?: number;
-  first_name?: string;
-  last_name?: string;
+  full_name?: string;
   email?: string;
   profile_image?: string | null;
   phoneNumber?: string | null;
@@ -89,8 +88,7 @@ export interface Order {
   id: number;
   user_data?: OrderUserData | null;
   status: OrderStatus;
-  first_name?: string;
-  last_name?: string;
+  full_name?: string;
   customer_phone?: string;
   customer_email?: string;
   shipping_address?: ShippingAddress | Record<string, unknown>;
@@ -113,8 +111,7 @@ export interface Order {
 
 export interface CreateOrderPayload {
   status?: OrderStatus;
-  first_name: string;
-  last_name: string;
+  full_name: string;
   customer_phone: string;
   customer_email?: string;
   shipping_address?: ShippingAddress;

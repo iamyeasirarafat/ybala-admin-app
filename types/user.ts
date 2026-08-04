@@ -9,8 +9,7 @@ export interface ManagedUserAddress {
 
 export interface ManagedUser {
   id: number;
-  first_name?: string;
-  last_name?: string;
+  full_name?: string;
   email?: string | null;
   phoneNumber?: string | null;
   userType: ManagedUserType;
@@ -20,8 +19,7 @@ export interface ManagedUser {
 }
 
 export interface UserPayload {
-  first_name: string;
-  last_name: string;
+  full_name: string;
   email?: string;
   phoneNumber?: string;
   userType: ManagedUserType;

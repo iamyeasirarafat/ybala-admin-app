@@ -10,10 +10,7 @@ export const ProfileHeader: React.FC = () => {
   const router = useRouter();
   const { data: profile } = useProfile();
   const canEdit = profile?.userType === 'manager';
-  const fullName =
-    profile?.first_name && profile?.last_name
-      ? `${profile.first_name} ${profile.last_name}`
-      : profile?.first_name || profile?.email || 'Account';
+  const fullName = profile?.full_name || profile?.email || 'Account';
 
   return (
     <TouchableOpacity
@@ -25,7 +22,7 @@ export const ProfileHeader: React.FC = () => {
         <Avatar
           size="lg"
           source={mediaUrl(profile?.profile_image)}
-          initials={profile?.first_name?.charAt(0).toUpperCase()}
+          initials={profile?.full_name?.charAt(0).toUpperCase()}
           backgroundColor="bg-primary-600 dark:bg-primary-500"
         />
         <View className="ml-4 flex-1">

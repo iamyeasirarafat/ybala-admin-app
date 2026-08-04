@@ -61,10 +61,7 @@ export const UserList: React.FC = () => {
   };
 
   const confirmDelete = (user: ManagedUser) => {
-    const name =
-      `${user.first_name || ''} ${user.last_name || ''}`.trim() ||
-      user.email ||
-      'this user';
+    const name = user.full_name || user.email || 'this user';
     Alert.alert('Delete User', `Delete ${name}?`, [
       { text: 'Cancel', style: 'cancel' },
       {
@@ -138,9 +135,7 @@ export const UserList: React.FC = () => {
       ) : (
         <View className="gap-3">
           {users.map((user) => {
-            const name =
-              `${user.first_name || ''} ${user.last_name || ''}`.trim() ||
-              'Unnamed';
+            const name = user.full_name || 'Unnamed';
             return (
               <TouchableOpacity
                 key={user.id}
@@ -156,7 +151,7 @@ export const UserList: React.FC = () => {
                 <Avatar
                   size="md"
                   source={mediaUrl(user.profile_image)}
-                  initials={user.first_name?.charAt(0).toUpperCase()}
+                  initials={user.full_name?.charAt(0).toUpperCase()}
                 />
                 <View className="flex-1 ml-3">
                   <View className="flex-row items-center gap-2">

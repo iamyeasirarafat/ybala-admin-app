@@ -10,10 +10,7 @@ export default function DashboardScreen() {
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
 
-  const name =
-    profile?.first_name && profile?.last_name
-      ? `${profile.first_name} ${profile.last_name}`
-      : profile?.first_name || profile?.email || 'Admin';
+  const name = profile?.full_name || profile?.email || 'Admin';
 
   const handleRefresh = async () => {
     setRefreshing(true);

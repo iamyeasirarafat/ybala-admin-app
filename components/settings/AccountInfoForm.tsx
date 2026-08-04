@@ -15,8 +15,7 @@ export const AccountInfoForm: React.FC = () => {
   const { data: profile } = useProfile();
   const updateProfile = useUpdateProfile();
 
-  const [firstName, setFirstName] = useState(profile?.first_name || '');
-  const [lastName, setLastName] = useState(profile?.last_name || '');
+  const [fullName, setFullName] = useState(profile?.full_name || '');
   const [phone, setPhone] = useState(profile?.phoneNumber || '');
   const [email, setEmail] = useState(profile?.email || '');
   const [profileImage, setProfileImage] = useState<string | undefined>(
@@ -48,21 +47,19 @@ export const AccountInfoForm: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!firstName.trim() || !lastName.trim()) {
-      toast.error('First and last name are required.');
+    if (!fullName.trim()) {
+      toast.error('Full name is required.');
       return;
     }
 
     try {
       const payload: {
-        first_name: string;
-        last_name: string;
+        full_name: string;
         phoneNumber: string;
         email: string;
         image?: string;
       } = {
-        first_name: firstName.trim(),
-        last_name: lastName.trim(),
+        full_name: fullName.trim(),
         phoneNumber: phone.trim(),
         email: email.trim(),
       };
@@ -110,16 +107,10 @@ export const AccountInfoForm: React.FC = () => {
 
       <View className="gap-4">
         <Input
-          label="First Name"
-          value={firstName}
-          onChangeText={setFirstName}
-          placeholder="First name"
-        />
-        <Input
-          label="Last Name"
-          value={lastName}
-          onChangeText={setLastName}
-          placeholder="Last name"
+          label="Full Name"
+          value={fullName}
+          onChangeText={setFullName}
+          placeholder="Full name"
         />
         <Input
           label="Phone"

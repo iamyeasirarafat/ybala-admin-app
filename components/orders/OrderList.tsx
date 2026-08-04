@@ -35,7 +35,7 @@ interface OrderRowProps {
 }
 
 const OrderRow = React.memo(({ item, onPress }: OrderRowProps) => {
-  const name = `${item.first_name ?? ''} ${item.last_name ?? ''}`.trim();
+  const name = item.full_name ?? '';
   const items = item.carts?.length ?? 0;
   return (
     <TouchableOpacity
@@ -95,7 +95,7 @@ export const OrderList: React.FC = () => {
 
   const [refreshing, setRefreshing] = useState(false);
 
-  const { data, isLoading, isFetching, refetch } = useOrders({
+  const { data, isFetching, refetch } = useOrders({
     role,
     status,
     search,
@@ -106,6 +106,11 @@ export const OrderList: React.FC = () => {
   const orders = data?.results ?? [];
   const total = data?.count ?? 0;
   const canLoadMore = orders.length < total;
+
+  // True while a fetch for the base page (initial load, or a status/search
+  // change) is in flight — excludes "load more" (limit > PAGE_SIZE) and
+  // pull-to-refresh, which have their own loading indicators.
+  const isFilterLoading = isFetching && limit === PAGE_SIZE && !refreshing;
 
   const resetPage = () => setLimit(PAGE_SIZE);
 
@@ -204,7 +209,7 @@ export const OrderList: React.FC = () => {
   );
 
   const footer = useMemo(() => {
-    if (isLoading || !canLoadMore) return null;
+    if (isFilterLoading || !canLoadMore) return null;
     return (
       <TouchableOpacity
         onPress={loadMore}
@@ -224,10 +229,10 @@ export const OrderList: React.FC = () => {
         )}
       </TouchableOpacity>
     );
-  }, [isLoading, canLoadMore, isFetching, loadMore]);
+  }, [isFilterLoading, canLoadMore, isFetching, loadMore]);
 
   const empty = useMemo(() => {
-    if (isLoading) {
+    if (isFilterLoading) {
       return (
         <View className="items-center py-16">
           <ActivityIndicator size="large" color="#6FA25F" />
@@ -242,11 +247,11 @@ export const OrderList: React.FC = () => {
         </Text>
       </View>
     );
-  }, [isLoading]);
+  }, [isFilterLoading]);
 
   return (
     <FlatList
-      data={orders}
+      data={isFilterLoading ? [] : orders}
       keyExtractor={(item) => String(item.id)}
       renderItem={renderItem}
       ListHeaderComponent={header}

@@ -13,8 +13,7 @@ import { useUsers } from '@/hooks/useUser';
 
 export interface SelectedCustomer {
   id: number | 'guest';
-  first_name?: string;
-  last_name?: string;
+  full_name?: string;
   phone?: string;
   email?: string;
 }
@@ -26,8 +25,7 @@ interface CustomerSelectFieldProps {
 
 const GUEST: SelectedCustomer = {
   id: 'guest',
-  first_name: 'Guest',
-  last_name: 'User',
+  full_name: 'Guest User',
 };
 
 export const CustomerSelectField: React.FC<CustomerSelectFieldProps> = ({
@@ -42,7 +40,7 @@ export const CustomerSelectField: React.FC<CustomerSelectFieldProps> = ({
   const label = value
     ? value.id === 'guest'
       ? 'Guest User'
-      : `${value.first_name ?? ''} ${value.last_name ?? ''}`.trim()
+      : value.full_name ?? ''
     : 'Select a customer';
 
   const pick = (c: SelectedCustomer) => {
@@ -135,8 +133,7 @@ export const CustomerSelectField: React.FC<CustomerSelectFieldProps> = ({
                     onPress={() =>
                       pick({
                         id: item.id,
-                        first_name: item.first_name,
-                        last_name: item.last_name,
+                        full_name: item.full_name,
                         phone: item.phoneNumber ?? '',
                         email: item.email ?? '',
                       })
@@ -145,13 +142,12 @@ export const CustomerSelectField: React.FC<CustomerSelectFieldProps> = ({
                   >
                     <View className="w-9 h-9 rounded-full bg-primary-100 dark:bg-primary-900 items-center justify-center mr-3">
                       <Text className="text-primary-700 dark:text-primary-300 font-bold">
-                        {(item.first_name?.[0] || '?').toUpperCase()}
+                        {(item.full_name?.[0] || '?').toUpperCase()}
                       </Text>
                     </View>
                     <View className="flex-1">
                       <Text className="text-base text-gray-900 dark:text-white">
-                        {`${item.first_name ?? ''} ${item.last_name ?? ''}`.trim() ||
-                          'Unnamed'}
+                        {item.full_name || 'Unnamed'}
                       </Text>
                       <Text className="text-xs text-gray-500 dark:text-gray-400">
                         {item.email || item.phoneNumber || `#${item.id}`}

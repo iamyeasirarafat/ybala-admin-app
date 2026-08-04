@@ -27,8 +27,7 @@ export const UserForm: React.FC = () => {
   const { data: user, isLoading } = useManagedUser(userId);
   const saveUser = useSaveUser();
 
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [userType, setUserType] = useState<ManagedUserType | ''>('');
@@ -37,16 +36,14 @@ export const UserForm: React.FC = () => {
 
   useEffect(() => {
     if (!user) return;
-    setFirstName(user.first_name || '');
-    setLastName(user.last_name || '');
+    setFullName(user.full_name || '');
     setEmail(user.email || '');
     setPhone(stripCode(user.phoneNumber));
     setUserType(user.userType || '');
   }, [user]);
 
   const handleSave = async () => {
-    if (!firstName.trim()) return toast.error('First name is required.');
-    if (!lastName.trim()) return toast.error('Last name is required.');
+    if (!fullName.trim()) return toast.error('Full name is required.');
     if (!email.trim()) return toast.error('Email is required.');
     if (!phone.trim()) return toast.error('Phone number is required.');
     if (!userType) return toast.error('User type is required.');
@@ -55,8 +52,7 @@ export const UserForm: React.FC = () => {
     if (!userId && !image) return toast.error('Profile image is required.');
 
     const payload: UserPayload = {
-      first_name: firstName.trim(),
-      last_name: lastName.trim(),
+      full_name: fullName.trim(),
       email: email.trim(),
       phoneNumber: `${COUNTRY_CODE}${phone.trim()}`,
       countryCode: COUNTRY_CODE,
@@ -87,24 +83,12 @@ export const UserForm: React.FC = () => {
     <View className="px-4 py-5 gap-4">
       <SectionHeading title={userId ? 'Edit User' : 'New User'} />
 
-      <View className="flex-row gap-3">
-        <View className="flex-1">
-          <Input
-            label="First Name"
-            value={firstName}
-            onChangeText={setFirstName}
-            placeholder="First name"
-          />
-        </View>
-        <View className="flex-1">
-          <Input
-            label="Last Name"
-            value={lastName}
-            onChangeText={setLastName}
-            placeholder="Last name"
-          />
-        </View>
-      </View>
+      <Input
+        label="Full Name"
+        value={fullName}
+        onChangeText={setFullName}
+        placeholder="Full name"
+      />
 
       <Input
         label="Email"

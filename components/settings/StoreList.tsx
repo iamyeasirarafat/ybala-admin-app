@@ -14,8 +14,7 @@ interface StoreListProps {
 const managerLabel = (store: StoreLocation) => {
   const m = store.manager_data;
   if (!m) return 'No manager assigned';
-  const name = `${m.first_name || ''} ${m.last_name || ''}`.trim();
-  return name || m.email || 'Manager';
+  return m.full_name || m.email || 'Manager';
 };
 
 export const StoreList: React.FC<StoreListProps> = ({
