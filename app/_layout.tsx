@@ -2,13 +2,17 @@ import { AuthProvider } from '@/providers/AuthProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { setNavigationHandler } from '@/services/api';
 import { useAuthStore } from '@/store/auth.store';
-import { routeFromNotification, setPendingRoute } from '@/utils/deepLink';
+import {
+  consumePendingRoute,
+  routeFromNotification,
+  setPendingRoute,
+} from '@/utils/deepLink';
 import { ToastContainer } from '@/utils/toast';
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, router } from 'expo-router';
+import { Stack, router, useRootNavigationState } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { LogLevel, OneSignal } from 'react-native-onesignal';
 import 'react-native-reanimated';
@@ -21,6 +25,14 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
+  const rootNavigationState = useRootNavigationState();
+
+  // Kept in a ref so the OneSignal click listener (registered once, on
+  // mount) always sees the latest readiness without re-subscribing.
+  const navReadyRef = useRef(false);
+  useEffect(() => {
+    navReadyRef.current = !!rootNavigationState?.key;
+  }, [rootNavigationState?.key]);
 
   //onsignal setup
   useEffect(() => {
@@ -37,12 +49,17 @@ export default function RootLayout() {
       const route = routeFromNotification(event?.notification);
       if (!route) return;
 
-      if (useAuthStore.getState().isAuthenticated) {
-        router.push(route as any);
-      } else {
-        // Not logged in yet (or cold start before auth restores). Stash the
-        // target; AuthProvider resumes to it once the session is ready.
-        setPendingRoute(route);
+      // Always stash first so the route is never lost. On a cold start
+      // (app launched by tapping the notification), this listener can
+      // fire before the root navigator has mounted — calling router.push
+      // that early is silently dropped by React Navigation. When that's
+      // the case, leave it stashed; AuthProvider flushes it once the
+      // navigator is ready and the session is restored.
+      setPendingRoute(route);
+
+      if (useAuthStore.getState().isAuthenticated && navReadyRef.current) {
+        const pending = consumePendingRoute();
+        if (pending) router.push(pending as any);
       }
     };
 

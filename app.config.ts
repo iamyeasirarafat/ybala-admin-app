@@ -8,7 +8,7 @@ const easBuildProfile = process.env.EAS_BUILD_PROFILE;
 const oneSignalMode = easBuildProfile === 'production' ? 'production' : 'development';
 
 const config: ExpoConfig = {
-  name: 'ybala_admin_app',
+  name: 'Ybala Admin',
   slug: 'ybala_admin_app',
   version: '1.0.0',
   orientation: 'portrait',
@@ -21,20 +21,15 @@ const config: ExpoConfig = {
     bundleIdentifier: 'com.ybala.adminApp',
   },
   android: {
+    icon: './assets/images/icon.png',
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
-      foregroundImage: './assets/images/android-icon-foreground.png',
-      backgroundImage: './assets/images/android-icon-background.png',
-      monochromeImage: './assets/images/android-icon-monochrome.png',
+      backgroundColor: "#00000000",
+      foregroundImage: './assets/images/icon.png'
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     package: 'com.ybala.adminApp',
     googleServicesFile: './google-services.json',
-  },
-  web: {
-    output: 'static',
-    favicon: './assets/images/favicon.png',
   },
   plugins: [
     'expo-router',
