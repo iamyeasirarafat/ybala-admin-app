@@ -21,10 +21,9 @@ const config: ExpoConfig = {
     bundleIdentifier: 'com.ybala.adminApp',
   },
   android: {
-    icon: './assets/images/icon.png',
     adaptiveIcon: {
       backgroundColor: "#00000000",
-      foregroundImage: './assets/images/icon.png'
+      foregroundImage: './assets/images/icon-foreground.png'
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
