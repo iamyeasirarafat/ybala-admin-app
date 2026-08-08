@@ -1,6 +1,10 @@
 import { AuthProvider } from '@/providers/AuthProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { setNavigationHandler } from '@/services/api';
+import {
+  initializeOneSignal,
+  requestPushPermission,
+} from '@/services/onesignal';
 import { useAuthStore } from '@/store/auth.store';
 import {
   consumePendingRoute,
@@ -14,7 +18,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
 import { useEffect, useRef } from 'react';
 import { TouchableOpacity } from 'react-native';
-import { LogLevel, OneSignal } from 'react-native-onesignal';
+import { OneSignal } from 'react-native-onesignal';
 import 'react-native-reanimated';
 import '../global.css';
 
@@ -36,9 +40,14 @@ export default function RootLayout() {
 
   //onsignal setup
   useEffect(() => {
-    OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-    OneSignal.initialize('43e00645-7378-4b28-b67e-03379eefd79f');
-    OneSignal.Notifications.requestPermission(true);
+    // Gated behind a ready-promise in the service: React fires child effects
+    // (AuthProvider's session restore) before this one, so callers must be able
+    // to wait for the SDK rather than assume it is up.
+    initializeOneSignal();
+
+    // Result is handled, not discarded — a denial on Android 13+ means no FCM
+    // token and therefore no device in OneSignal at all.
+    void requestPushPermission();
 
     // Handle taps on a notification -> deep link into the app.
     const onClick = (event: any) => {
@@ -63,9 +72,28 @@ export default function RootLayout() {
       }
     };
 
+    // Surfaces the actual bind/unbind result. OneSignal.login/logout are
+    // fire-and-forget void calls, so this listener is the only way to confirm
+    // the device really registered rather than assuming it did.
+    const onSubscriptionChange = (event: any) => {
+      console.log('OneSignal subscription:', {
+        id: event?.current?.id,
+        optedIn: event?.current?.optedIn,
+        token: event?.current?.token ? 'present' : 'missing',
+      });
+    };
+
     OneSignal.Notifications.addEventListener('click', onClick);
+    OneSignal.User.pushSubscription.addEventListener(
+      'change',
+      onSubscriptionChange
+    );
     return () => {
       OneSignal.Notifications.removeEventListener('click', onClick);
+      OneSignal.User.pushSubscription.removeEventListener(
+        'change',
+        onSubscriptionChange
+      );
     };
   }, []);
 
