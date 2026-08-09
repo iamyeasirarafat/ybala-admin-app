@@ -1,9 +1,3 @@
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
 import { orderService } from '@/services/orderService';
 import {
   AddCartPayload,
@@ -13,6 +7,12 @@ import {
 } from '@/types';
 import { extractApiError } from '@/utils/errorExtractor';
 import { toast } from '@/utils/toast';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 const keys = {
   orders: (params: OrderListParams) => ['order', 'list', params] as const,
@@ -25,7 +25,8 @@ export const useOrders = (params: OrderListParams) =>
     queryKey: keys.orders(params),
     queryFn: () => orderService.getOrders(params),
     placeholderData: keepPreviousData,
-    staleTime: 30 * 1000,
+  refetchInterval: 5 * 1000, // check every 5 seconds
+  staleTime: 2 * 1000,       // fresh for 2 seconds
   });
 
 export const useOrder = (id?: number) =>
