@@ -22,7 +22,7 @@ const config: ExpoConfig = {
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: "#00000000",
+      backgroundColor: "#ffffff00",
       foregroundImage: './assets/images/icon-foreground.png'
     },
     edgeToEdgeEnabled: true,
@@ -32,6 +32,7 @@ const config: ExpoConfig = {
   },
   plugins: [
     'expo-router',
+    'expo-audio',
     [
       'expo-splash-screen',
       {

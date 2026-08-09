@@ -1,136 +1,17 @@
 import { useOrders, useUpdateOrderStatus } from '@/hooks/useOrder';
 import { useAuthStore } from '@/store/auth.store';
-import { Order, OrderRole, OrderStatus, ShippingAddress } from '@/types';
-import { formatCurrency } from '@/utils/format';
-import { Ionicons } from '@expo/vector-icons';
+import { Order, OrderRole, OrderStatus } from '@/types';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { OrderStatusBadge } from './OrderStatusBadge';
-import { getOrderListTab, ORDER_LIST_TABS, OrderListTab } from './orderStatus';
+import { FlatList, RefreshControl } from 'react-native';
+import { OrderListEmpty } from './OrderListEmpty';
+import { OrderListFooter } from './OrderListFooter';
+import { OrderListHeader } from './OrderListHeader';
+import { OrderRow } from './OrderRow';
+import { getOrderListTab, OrderListTab } from './orderStatus';
+import { useOrderAlertSound } from './useOrderAlertSound';
 
 const PAGE_SIZE = 15;
-
-const formatAddress = (item: Order) => {
-  if (item.is_pickup) {
-    return `Pickup${item.branch_info?.en_title ? ` · ${item.branch_info.en_title}` : ''}`;
-  }
-  const address = item.shipping_address as ShippingAddress | undefined;
-  return [address?.street, address?.city].filter(Boolean).join(', ');
-};
-
-const formatItemsSummary = (item: Order) => {
-  const lines = item.carts ?? [];
-  if (lines.length === 0) return 'No items';
-  return lines
-    .map((line) => {
-      const name = line.menu_data?.translations?.en?.name || `Item #${line.menu}`;
-      return `${line.quantity} x ${name}`;
-    })
-    .join(', ');
-};
-
-interface OrderRowProps {
-  item: Order;
-  onPress: (id: number) => void;
-  onAdvanceStatus: (id: number, status: OrderStatus) => void;
-  isUpdating: boolean;
-}
-
-const OrderRow = React.memo(
-  ({ item, onPress, onAdvanceStatus, isUpdating }: OrderRowProps) => {
-    const name = item.full_name || 'Guest';
-    const nextAction =
-      item.status === 'pending'
-        ? { label: 'Accept', next: 'processing' as OrderStatus }
-        : item.status === 'processing'
-          ? { label: 'Complete', next: 'completed' as OrderStatus }
-          : null;
-
-    return (
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={() => onPress(item.id)}
-        className="p-5 rounded-3xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 mb-4"
-      >
-        <View className="flex-row items-start justify-between">
-          <Text
-            className="flex-1 text-lg font-bold text-gray-900 dark:text-white pr-2"
-            numberOfLines={1}
-          >
-            {name}
-          </Text>
-          <View className="items-end gap-1">
-            <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-              Order Id #{item.id}
-            </Text>
-            <OrderStatusBadge status={item.status} />
-          </View>
-        </View>
-
-        {!!item.customer_phone && (
-          <Text className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-            {item.customer_phone}
-          </Text>
-        )}
-        <Text
-          className="text-sm text-gray-600 dark:text-gray-300 mt-0.5"
-          numberOfLines={1}
-        >
-          {formatAddress(item)}
-        </Text>
-
-        <View className="rounded-2xl bg-gray-50 dark:bg-gray-900/50 p-4 mt-4">
-          <Text
-            className="text-sm text-gray-700 dark:text-gray-200"
-            numberOfLines={2}
-          >
-            {formatItemsSummary(item)}
-          </Text>
-          <Text className="text-lg font-bold text-gray-900 dark:text-white mt-1">
-            {formatCurrency(Number(item.price ?? item.total_price ?? 0))}
-          </Text>
-        </View>
-
-        <View className="flex-row items-stretch gap-3 mt-4">
-          <TouchableOpacity
-            onPress={() => onPress(item.id)}
-            activeOpacity={0.8}
-            className="flex-1 py-3.5 rounded-xl bg-primary-600 items-center justify-center"
-          >
-            <Text className="text-sm font-bold text-white">See Details</Text>
-          </TouchableOpacity>
-
-          {nextAction && (
-            <TouchableOpacity
-              onPress={() => onAdvanceStatus(item.id, nextAction.next)}
-              activeOpacity={0.8}
-              disabled={isUpdating}
-              className="flex-1 py-3.5 rounded-xl bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 items-center justify-center"
-            >
-              {isUpdating ? (
-                <ActivityIndicator size="small" color="#6FA25F" />
-              ) : (
-                <Text className="text-sm font-bold text-gray-900 dark:text-white">
-                  {nextAction.label}
-                </Text>
-              )}
-            </TouchableOpacity>
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  },
-);
-OrderRow.displayName = 'OrderRow';
 
 export const OrderList: React.FC = () => {
   const router = useRouter();
@@ -145,7 +26,7 @@ export const OrderList: React.FC = () => {
 
   // Status grouping (New/Ongoing/Completed) happens client-side below —
   // the API only supports filtering by a single exact status.
-  const { data, isFetching, refetch } = useOrders({
+  const { data, isFetching, isLoading, refetch } = useOrders({
     role,
     status: 'all',
     search,
@@ -164,12 +45,12 @@ export const OrderList: React.FC = () => {
     [allOrders, tab],
   );
 
-  // True while a fetch for the base page (initial load, or a search change)
-  // is in flight — excludes "load more" (limit > PAGE_SIZE) and
-  // pull-to-refresh, which have their own loading indicators.
-  const isFilterLoading = isFetching && limit === PAGE_SIZE && !refreshing;
-
-  const resetPage = () => setLimit(PAGE_SIZE);
+  // True only before the very first successful fetch. `useOrders` keeps
+  // previous data visible during every later fetch (background polling,
+  // search changes, load-more), so gating on `isFetching` here made the
+  // 5-second refetchInterval blank the whole list and show a spinner on
+  // every poll — fighting the placeholderData that exists to prevent that.
+  const isFilterLoading = isLoading;
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -180,13 +61,17 @@ export const OrderList: React.FC = () => {
     }
   }, [refetch]);
 
+  const { stopAlert } = useOrderAlertSound(allOrders, data !== undefined, limit);
+
   const onPress = useCallback(
-    (id: number) =>
+    (id: number) => {
+      stopAlert();
       router.push({
         pathname: '/orders/order-detail',
         params: { id: String(id) },
-      }),
-    [router],
+      });
+    },
+    [router, stopAlert],
   );
 
   const loadMore = useCallback(() => {
@@ -194,8 +79,11 @@ export const OrderList: React.FC = () => {
   }, [canLoadMore, isFetching]);
 
   const onAdvanceStatus = useCallback(
-    (id: number, next: OrderStatus) => updateStatus.mutate({ id, status: next }),
-    [updateStatus],
+    (id: number, next: OrderStatus) => {
+      stopAlert();
+      updateStatus.mutate({ id, status: next });
+    },
+    [updateStatus, stopAlert],
   );
 
   const renderItem = useCallback(
@@ -212,104 +100,44 @@ export const OrderList: React.FC = () => {
     [onPress, onAdvanceStatus, updateStatus.isPending, updateStatus.variables],
   );
 
-  const header = useMemo(
-    () => (
-      <View className="gap-4 pb-3">
-        <View className="flex-row items-center gap-3">
-          <View className="flex-1 flex-row items-center px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-            <Ionicons name="search" size={18} color="#9CA3AF" />
-            <TextInput
-              value={search}
-              onChangeText={(v) => {
-                setSearch(v);
-                resetPage();
-              }}
-              placeholder="Search by id, name, email, phone"
-              placeholderTextColor="#9CA3AF"
-              className="flex-1 ml-2 text-gray-900 dark:text-white"
-              style={{ padding: 0, fontSize: 15 }}
-            />
-          </View>
-          <TouchableOpacity
-            onPress={() => router.push('/orders/order-form')}
-            className="flex-row items-center px-3 py-2.5 rounded-xl bg-primary-600"
-            activeOpacity={0.8}
-          >
-            <Ionicons name="add" size={18} color="#FFF" />
-            <Text className="text-white font-semibold text-sm ml-1">New</Text>
-          </TouchableOpacity>
-        </View>
+  const onSearchChange = useCallback((value: string) => {
+    setSearch(value);
+    setLimit(PAGE_SIZE);
+  }, []);
 
-        <View className="flex-row bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-1">
-          {ORDER_LIST_TABS.map((t) => {
-            const active = tab === t.key;
-            return (
-              <TouchableOpacity
-                key={t.key}
-                onPress={() => setTab(t.key)}
-                className={`flex-1 py-2.5 rounded-lg items-center ${
-                  active ? 'bg-primary-600' : ''
-                }`}
-                activeOpacity={0.8}
-              >
-                <Text
-                  className={`text-sm font-bold ${
-                    active
-                      ? 'text-white'
-                      : 'text-gray-600 dark:text-gray-300'
-                  }`}
-                >
-                  {t.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
-    ),
-    [search, tab, router],
+  const onCreatePress = useCallback(
+    () => router.push('/orders/order-form'),
+    [router],
   );
 
-  const footer = useMemo(() => {
-    if (isFilterLoading || !canLoadMore) return null;
-    return (
-      <TouchableOpacity
-        onPress={loadMore}
-        disabled={isFetching}
-        className="flex-row items-center justify-center py-3"
-        activeOpacity={0.7}
-      >
-        {isFetching ? (
-          <ActivityIndicator size="small" color="#6FA25F" />
-        ) : (
-          <>
-            <Text className="text-sm font-semibold text-primary-600 dark:text-primary-400 mr-1">
-              Load more
-            </Text>
-            <Ionicons name="chevron-down" size={16} color="#6FA25F" />
-          </>
-        )}
-      </TouchableOpacity>
-    );
-  }, [isFilterLoading, canLoadMore, isFetching, loadMore]);
+  const header = useMemo(
+    () => (
+      <OrderListHeader
+        search={search}
+        onSearchChange={onSearchChange}
+        tab={tab}
+        onTabChange={setTab}
+        onCreatePress={onCreatePress}
+      />
+    ),
+    [search, onSearchChange, tab, onCreatePress],
+  );
 
-  const empty = useMemo(() => {
-    if (isFilterLoading) {
-      return (
-        <View className="items-center py-16">
-          <ActivityIndicator size="large" color="#6FA25F" />
-        </View>
-      );
-    }
-    return (
-      <View className="items-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
-        <Ionicons name="receipt-outline" size={32} color="#9CA3AF" />
-        <Text className="text-gray-500 dark:text-gray-400 mt-2">
-          No orders found.
-        </Text>
-      </View>
-    );
-  }, [isFilterLoading]);
+  const footer = useMemo(
+    () => (
+      <OrderListFooter
+        visible={!isFilterLoading && canLoadMore}
+        loading={isFetching}
+        onPress={loadMore}
+      />
+    ),
+    [isFilterLoading, canLoadMore, isFetching, loadMore],
+  );
+
+  const empty = useMemo(
+    () => <OrderListEmpty loading={isFilterLoading} />,
+    [isFilterLoading],
+  );
 
   return (
     <FlatList
@@ -331,8 +159,6 @@ export const OrderList: React.FC = () => {
           colors={['#6FA25F']}
         />
       }
-      onEndReachedThreshold={0.4}
-      onEndReached={loadMore}
       removeClippedSubviews
       initialNumToRender={10}
       maxToRenderPerBatch={10}
