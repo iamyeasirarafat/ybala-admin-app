@@ -1,18 +1,13 @@
-# Graph Report - ybala-admin-app  (2026-08-09)
+# Graph Report - .  (2026-08-08)
 
 ## Corpus Check
-- 161 files · ~200,075 words
+- 166 files · ~200,061 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 734 nodes · 1849 edges · 64 communities (23 shown, 41 thin omitted)
+- 734 nodes · 1853 edges · 64 communities (23 shown, 41 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 21 edges (avg confidence: 0.79)
-- Token cost: 0 input · 0 output
-
-## Graph Freshness
-- Built from commit: `45fbe291`
-- Run `git rev-parse HEAD` and compare to check if the graph is stale.
-- Run `graphify update .` after code changes (no API cost).
+- Token cost: 157,896 input · 0 output
 
 ## Community Hubs (Navigation)
 - Order Management
@@ -101,8 +96,8 @@
   README.md → hooks/useProfile.ts
 
 ## Import Cycles
-- 2-file cycle: `components/settings/StoreFormContainer.tsx -> components/settings/index.ts -> components/settings/StoreFormContainer.tsx`
 - 2-file cycle: `components/settings/StoreLocationManager.tsx -> components/settings/index.ts -> components/settings/StoreLocationManager.tsx`
+- 2-file cycle: `components/settings/StoreFormContainer.tsx -> components/settings/index.ts -> components/settings/StoreFormContainer.tsx`
 
 ## Hyperedges (group relationships)
 - **Root Layout Provider Composition** — app__layout_rootlayout, providers_themeprovider_themeprovider, providers_queryprovider_queryprovider, providers_authprovider_authprovider [EXTRACTED 1.00]
@@ -172,7 +167,7 @@ Nodes (11): expo-env.d.ts, expo/tsconfig.base, .expo/types/**/*.ts, nativewind-e
 
 ### Community 15 - "Core App Dependencies"
 Cohesion: 0.18
-Nodes (11): axios, expo-dev-client, dependencies, axios, expo-dev-client, react-dom, react-native, @tanstack/react-query (+3 more)
+Nodes (11): axios, expo, dependencies, axios, expo, react-dom, react-native, @tanstack/react-query (+3 more)
 
 ### Community 16 - "Toast Notification System"
 Cohesion: 0.24
@@ -187,7 +182,7 @@ Cohesion: 0.50
 Nodes (3): config, { getDefaultConfig }, { withNativeWind }
 
 ## Knowledge Gaps
-- **153 isolated node(s):** `keys`, `config`, `unstable_settings`, `unstable_settings`, `MenuItemProps` (+148 more)
+- **153 isolated node(s):** `config`, `unstable_settings`, `unstable_settings`, `MenuItemProps`, `ScreenProps` (+148 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **41 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -200,10 +195,10 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.229) - this node is a cross-community bridge._
 - **Why does `react` connect `Toast Notification System` to `Core App Dependencies`?**
   _High betweenness centrality (0.227) - this node is a cross-community bridge._
-- **What connects `keys`, `config`, `unstable_settings` to the rest of the system?**
+- **What connects `config`, `unstable_settings`, `unstable_settings` to the rest of the system?**
   _153 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Order Management` be split into smaller, more focused modules?**
-  _Cohesion score 0.056862745098039215 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.057703081232493 - nodes in this community are weakly interconnected._
 - **Should `Analytics Dashboard` be split into smaller, more focused modules?**
   _Cohesion score 0.07259407259407259 - nodes in this community are weakly interconnected._
 - **Should `App Route Screens` be split into smaller, more focused modules?**
