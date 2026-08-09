@@ -26,7 +26,9 @@ const formatItemsSummary = (item: Order) => {
 interface OrderRowProps {
   item: Order;
   onPress: (id: number) => void;
-  onAdvanceStatus: (id: number, status: OrderStatus) => void;
+  // Takes the whole order, not just its id: accepting an order also prints a
+  // receipt, which needs the line items and totals.
+  onAdvanceStatus: (order: Order, status: OrderStatus) => void;
   isUpdating: boolean;
 }
 
@@ -96,7 +98,7 @@ export const OrderRow = React.memo(
 
           {nextAction && (
             <TouchableOpacity
-              onPress={() => onAdvanceStatus(item.id, nextAction.next)}
+              onPress={() => onAdvanceStatus(item, nextAction.next)}
               activeOpacity={0.8}
               disabled={isUpdating}
               className="flex-1 py-3.5 rounded-xl bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 items-center justify-center"

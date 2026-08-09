@@ -10,6 +10,7 @@ import { OrderListHeader } from './OrderListHeader';
 import { OrderRow } from './OrderRow';
 import { getOrderListTab, OrderListTab } from './orderStatus';
 import { useOrderAlertSound } from './useOrderAlertSound';
+import { useOrderReceiptPrinter } from './useOrderReceiptPrinter';
 
 const PAGE_SIZE = 15;
 
@@ -62,6 +63,7 @@ export const OrderList: React.FC = () => {
   }, [refetch]);
 
   const { stopAlert } = useOrderAlertSound(allOrders, data !== undefined, limit);
+  const { print } = useOrderReceiptPrinter();
 
   const onPress = useCallback(
     (id: number) => {
@@ -79,11 +81,21 @@ export const OrderList: React.FC = () => {
   }, [canLoadMore, isFetching]);
 
   const onAdvanceStatus = useCallback(
-    (id: number, next: OrderStatus) => {
+    (order: Order, next: OrderStatus) => {
       stopAlert();
-      updateStatus.mutate({ id, status: next });
+      updateStatus.mutate(
+        { id: order.id, status: next },
+        {
+          // Printed only after the server confirms the status change, and only
+          // for Accept — a receipt for an order that failed to move out of
+          // "New" would be handed to a customer for an order still unconfirmed.
+          onSuccess: () => {
+            if (next === 'processing') void print(order);
+          },
+        },
+      );
     },
-    [updateStatus, stopAlert],
+    [updateStatus, stopAlert, print],
   );
 
   const renderItem = useCallback(

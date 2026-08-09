@@ -29,6 +29,15 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
     package: 'com.ybala.adminApp',
     googleServicesFile: './google-services.json',
+    // Required to reach the NETUM PDA's built-in printer over Bluetooth SPP.
+    // BLUETOOTH/BLUETOOTH_ADMIN cover Android <= 11; CONNECT/SCAN are the
+    // Android 12+ replacements and are runtime permissions.
+    permissions: [
+      'android.permission.BLUETOOTH',
+      'android.permission.BLUETOOTH_ADMIN',
+      'android.permission.BLUETOOTH_CONNECT',
+      'android.permission.BLUETOOTH_SCAN',
+    ],
   },
   plugins: [
     'expo-router',
