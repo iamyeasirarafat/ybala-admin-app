@@ -83,17 +83,30 @@ export default function RootLayout() {
       });
     };
 
+    // The SDK's own identity observer. Unlike the polling in bindPushUser,
+    // this fires whenever OneSignal itself decides the user changed, so it
+    // shows whether login() ever took effect — and when — independently of
+    // whether our poll window happened to be open at the time.
+    const onUserChange = (event: any) => {
+      console.log('OneSignal user:', {
+        onesignalId: event?.current?.onesignalId ?? null,
+        externalId: event?.current?.externalId ?? null,
+      });
+    };
+
     OneSignal.Notifications.addEventListener('click', onClick);
     OneSignal.User.pushSubscription.addEventListener(
       'change',
       onSubscriptionChange
     );
+    OneSignal.User.addEventListener('change', onUserChange);
     return () => {
       OneSignal.Notifications.removeEventListener('click', onClick);
       OneSignal.User.pushSubscription.removeEventListener(
         'change',
         onSubscriptionChange
       );
+      OneSignal.User.removeEventListener('change', onUserChange);
     };
   }, []);
 

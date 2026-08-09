@@ -120,14 +120,27 @@ export const bindPushUser = (externalId: string): Promise<boolean> =>
       );
     }
 
-    for (let attempt = 1; attempt <= MAX_BIND_ATTEMPTS; attempt++) {
-      OneSignal.login(externalId);
+    // Fired once. Re-calling login() on every retry (as this used to do) hands
+    // the native SDK a fresh identity operation each time, which supersedes
+    // the one still in flight — so a round trip slower than one poll window
+    // could never finish before being restarted, and every attempt "timed
+    // out" even though the server would have committed it if left alone.
+    OneSignal.login(externalId);
 
+    // Raw values from the last poll read, kept so a failure can report *which*
+    // half never arrived. Collapsing both into one boolean made every distinct
+    // failure mode print the same unactionable "did not commit".
+    let lastOnesignalId: string | null | undefined;
+    let lastExternalId: string | null | undefined;
+
+    for (let attempt = 1; attempt <= MAX_BIND_ATTEMPTS; attempt++) {
       const confirmed = await poll(async () => {
         const [onesignalId, current] = await Promise.all([
           OneSignal.User.getOnesignalId(),
           OneSignal.User.getExternalId(),
         ]);
+        lastOnesignalId = onesignalId;
+        lastExternalId = current;
         // An externalId with no server-assigned onesignalId means the
         // association has not committed yet — keep waiting rather than
         // reporting a success that only exists on-device.
@@ -142,11 +155,18 @@ export const bindPushUser = (externalId: string): Promise<boolean> =>
       }
 
       console.warn(
-        `OneSignal: bind attempt ${attempt}/${MAX_BIND_ATTEMPTS} did not commit`
+        `OneSignal: bind attempt ${attempt}/${MAX_BIND_ATTEMPTS} did not commit ` +
+          `(onesignal_id=${lastOnesignalId ?? 'null'} ` +
+          `external_id=${lastExternalId ?? 'null'} want=${externalId} ` +
+          `subscription=${subscriptionId ?? 'null'})`
       );
     }
 
-    console.error(`OneSignal: failed to bind external_id=${externalId}`);
+    console.error(
+      `OneSignal: failed to bind external_id=${externalId} ` +
+        `(last onesignal_id=${lastOnesignalId ?? 'null'}, ` +
+        `last external_id=${lastExternalId ?? 'null'})`
+    );
     return false;
   });
 
