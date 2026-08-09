@@ -1,4 +1,4 @@
-import { LogLevel, OneSignal } from 'react-native-onesignal';
+import { OneSignal } from 'react-native-onesignal';
 
 const ONESIGNAL_APP_ID = '43e00645-7378-4b28-b67e-03379eefd79f';
 
@@ -45,8 +45,6 @@ const serialize = <T>(task: () => Promise<T>): Promise<T> => {
 export const initializeOneSignal = (): void => {
   if (initialized) return;
   initialized = true;
-
-  OneSignal.Debug.setLogLevel(LogLevel.Verbose);
   OneSignal.initialize(ONESIGNAL_APP_ID);
   resolveReady();
 };

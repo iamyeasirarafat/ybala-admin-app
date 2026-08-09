@@ -15,7 +15,7 @@ import {
   View,
 } from 'react-native';
 import { OrderStatusBadge } from './OrderStatusBadge';
-import { STATUS_FILTER_TABS } from './orderStatus';
+import { getOrderListTab, ORDER_LIST_TABS, OrderListTab } from './orderStatus';
 
 const PAGE_SIZE = 15;
 
@@ -59,75 +59,72 @@ const OrderRow = React.memo(
       <TouchableOpacity
         activeOpacity={0.85}
         onPress={() => onPress(item.id)}
-        className="p-4 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 mb-3"
+        className="p-5 rounded-3xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 mb-4"
       >
         <View className="flex-row items-start justify-between">
           <Text
-            className="flex-1 text-base font-bold text-gray-900 dark:text-white pr-2"
+            className="flex-1 text-lg font-bold text-gray-900 dark:text-white pr-2"
             numberOfLines={1}
           >
             {name}
           </Text>
-          <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-            Order Id #{item.id}
-          </Text>
+          <View className="items-end gap-1">
+            <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+              Order Id #{item.id}
+            </Text>
+            <OrderStatusBadge status={item.status} />
+          </View>
         </View>
 
         {!!item.customer_phone && (
-          <Text className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+          <Text className="text-sm text-gray-600 dark:text-gray-300 mt-2">
             {item.customer_phone}
           </Text>
         )}
         <Text
-          className="text-sm text-gray-600 dark:text-gray-300"
+          className="text-sm text-gray-600 dark:text-gray-300 mt-0.5"
           numberOfLines={1}
         >
           {formatAddress(item)}
         </Text>
 
-        <View className="flex-row items-stretch mt-3">
-          <View className="flex-1 rounded-xl bg-gray-50 dark:bg-gray-900/50 p-3 mr-3 justify-center">
-            <Text
-              className="text-sm text-gray-700 dark:text-gray-200"
-              numberOfLines={2}
-            >
-              {formatItemsSummary(item)}
-            </Text>
-            <Text className="text-base font-bold text-gray-900 dark:text-white mt-1">
-              {formatCurrency(Number(item.price ?? item.total_price ?? 0))}
-            </Text>
-          </View>
+        <View className="rounded-2xl bg-gray-50 dark:bg-gray-900/50 p-4 mt-4">
+          <Text
+            className="text-sm text-gray-700 dark:text-gray-200"
+            numberOfLines={2}
+          >
+            {formatItemsSummary(item)}
+          </Text>
+          <Text className="text-lg font-bold text-gray-900 dark:text-white mt-1">
+            {formatCurrency(Number(item.price ?? item.total_price ?? 0))}
+          </Text>
+        </View>
 
-          <View className="justify-center gap-2">
+        <View className="flex-row items-stretch gap-3 mt-4">
+          <TouchableOpacity
+            onPress={() => onPress(item.id)}
+            activeOpacity={0.8}
+            className="flex-1 py-3.5 rounded-xl bg-primary-600 items-center justify-center"
+          >
+            <Text className="text-sm font-bold text-white">See Details</Text>
+          </TouchableOpacity>
+
+          {nextAction && (
             <TouchableOpacity
-              onPress={() => onPress(item.id)}
+              onPress={() => onAdvanceStatus(item.id, nextAction.next)}
               activeOpacity={0.8}
-              className="p-2 rounded-lg bg-primary-600 items-center"
+              disabled={isUpdating}
+              className="flex-1 py-3.5 rounded-xl bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 items-center justify-center"
             >
-              <Text className="text-xs font-bold text-white">See Details</Text>
+              {isUpdating ? (
+                <ActivityIndicator size="small" color="#6FA25F" />
+              ) : (
+                <Text className="text-sm font-bold text-gray-900 dark:text-white">
+                  {nextAction.label}
+                </Text>
+              )}
             </TouchableOpacity>
-
-            {nextAction ? (
-              <TouchableOpacity
-                onPress={() => onAdvanceStatus(item.id, nextAction.next)}
-                activeOpacity={0.8}
-                disabled={isUpdating}
-                className="px-4 py-2 rounded-lg bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 items-center "
-              >
-                {isUpdating ? (
-                  <ActivityIndicator size="small" color="#6FA25F" />
-                ) : (
-                  <Text className="text-xs font-bold text-gray-900 dark:text-white">
-                    {nextAction.label}
-                  </Text>
-                )}
-              </TouchableOpacity>
-            ) : (
-              <View className="items-center">
-                <OrderStatusBadge status={item.status} />
-              </View>
-            )}
-          </View>
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -141,14 +138,16 @@ export const OrderList: React.FC = () => {
   const role: OrderRole = userType === 'manager' ? 'manager' : 'admin';
 
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
+  const [tab, setTab] = useState<OrderListTab>('new');
   const [limit, setLimit] = useState(PAGE_SIZE);
 
   const [refreshing, setRefreshing] = useState(false);
 
+  // Status grouping (New/Ongoing/Completed) happens client-side below —
+  // the API only supports filtering by a single exact status.
   const { data, isFetching, refetch } = useOrders({
     role,
-    status,
+    status: 'all',
     search,
     limit,
     page: 1,
@@ -156,12 +155,17 @@ export const OrderList: React.FC = () => {
 
   const updateStatus = useUpdateOrderStatus();
 
-  const orders = data?.results ?? [];
+  const allOrders = useMemo(() => data?.results ?? [], [data?.results]);
   const total = data?.count ?? 0;
-  const canLoadMore = orders.length < total;
+  const canLoadMore = allOrders.length < total;
 
-  // True while a fetch for the base page (initial load, or a status/search
-  // change) is in flight — excludes "load more" (limit > PAGE_SIZE) and
+  const orders = useMemo(
+    () => allOrders.filter((o) => getOrderListTab(o.status) === tab),
+    [allOrders, tab],
+  );
+
+  // True while a fetch for the base page (initial load, or a search change)
+  // is in flight — excludes "load more" (limit > PAGE_SIZE) and
   // pull-to-refresh, which have their own loading indicators.
   const isFilterLoading = isFetching && limit === PAGE_SIZE && !refreshing;
 
@@ -236,43 +240,34 @@ export const OrderList: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <FlatList
-          horizontal
-          data={STATUS_FILTER_TABS}
-          keyExtractor={(t) => t.key}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: 8 }}
-          renderItem={({ item: tab }) => {
-            const active = status === tab.key;
+        <View className="flex-row bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-1">
+          {ORDER_LIST_TABS.map((t) => {
+            const active = tab === t.key;
             return (
               <TouchableOpacity
-                onPress={() => {
-                  setStatus(tab.key);
-                  resetPage();
-                }}
-                className={`px-4 py-2 rounded-full ${
-                  active
-                    ? 'bg-primary-600'
-                    : 'bg-gray-100 dark:bg-gray-800'
+                key={t.key}
+                onPress={() => setTab(t.key)}
+                className={`flex-1 py-2.5 rounded-lg items-center ${
+                  active ? 'bg-primary-600' : ''
                 }`}
                 activeOpacity={0.8}
               >
                 <Text
-                  className={`text-xs font-semibold ${
+                  className={`text-sm font-bold ${
                     active
                       ? 'text-white'
                       : 'text-gray-600 dark:text-gray-300'
                   }`}
                 >
-                  {tab.label}
+                  {t.label}
                 </Text>
               </TouchableOpacity>
             );
-          }}
-        />
+          })}
+        </View>
       </View>
     ),
-    [search, status, router],
+    [search, tab, router],
   );
 
   const footer = useMemo(() => {

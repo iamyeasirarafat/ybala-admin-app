@@ -58,16 +58,29 @@ export const STATUS_META: Record<OrderStatus, StatusMeta> = {
   },
 };
 
-// Statuses selectable in the list filter tabs (matches the frontend tabs).
-export const STATUS_FILTER_TABS: { key: string; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'pending', label: 'Pending' },
-  { key: 'processing', label: 'Processing' },
-  { key: 'delivering', label: 'Delivering' },
+// Order list groups (New / Ongoing / Completed) shown as tabs.
+export type OrderListTab = 'new' | 'ongoing' | 'completed';
+
+export const ORDER_LIST_TABS: { key: OrderListTab; label: string }[] = [
+  { key: 'new', label: 'New' },
+  { key: 'ongoing', label: 'Ongoing' },
   { key: 'completed', label: 'Completed' },
-  { key: 'cancelled', label: 'Cancelled' },
 ];
 
+// Statuses grouped under the "Completed" tab.
+const COMPLETED_TAB_STATUSES: OrderStatus[] = ['completed', 'cancelled', 'returned'];
+
+// Statuses grouped under the "Ongoing" tab.
+const ONGOING_TAB_STATUSES: OrderStatus[] = ['processing', 'delivering'];
+
+// "draft" and "payment_required" are incomplete/unplaced orders and are
+// excluded from all tabs (getOrderListTab returns null for them).
+export const getOrderListTab = (status: OrderStatus): OrderListTab | null => {
+  if (status === 'pending') return 'new';
+  if (COMPLETED_TAB_STATUSES.includes(status)) return 'completed';
+  if (ONGOING_TAB_STATUSES.includes(status)) return 'ongoing';
+  return null;
+};
 // Statuses a staff member can transition an order to from the detail screen.
 export const STATUS_ACTIONS: OrderStatus[] = [
   'pending',
