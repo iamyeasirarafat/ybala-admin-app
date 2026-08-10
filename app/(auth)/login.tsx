@@ -12,12 +12,22 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 
-const BANNER_HEIGHT = 380;
+// Keep the banner proportional to the viewport so the inputs stay reachable
+// on short screens, and cap it so it never dominates on tablets.
+const BANNER_RATIO = 0.26;
+const BANNER_MAX_HEIGHT = 260;
+const BANNER_MIN_HEIGHT = 120;
 
 export default function LoginScreen() {
+  const { height: windowHeight } = useWindowDimensions();
+  const bannerHeight = Math.max(
+    BANNER_MIN_HEIGHT,
+    Math.min(BANNER_MAX_HEIGHT, windowHeight * BANNER_RATIO)
+  );
   const login = useAuthStore((state) => state.login);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,73 +55,75 @@ export default function LoginScreen() {
 
   return (
     <Screen>
-        <Image
-        source={require('@/assets/images/auth-banner.jpg')}
-        style={{ height: BANNER_HEIGHT, width: '100%' }}
-      resizeMode="cover"
-      />
-
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 32 }}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingBottom: 32 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
         >
-          {/* Header */}
-          <View className="items-center mb-10">
-            <Text className="text-3xl font-bold text-gray-900 dark:text-white">
-              Ybala Admin
-            </Text>
-            <Text className="text-base text-gray-500 dark:text-gray-400 mt-2">
-              Sign in to your staff account
-            </Text>
-          </View>
+          <Image
+            source={require('@/assets/images/auth-banner.jpg')}
+            style={{ height: bannerHeight, width: '100%' }}
+            resizeMode="cover"
+          />
 
-          {/* Form */}
-          <View>
-            <Input
-              label="Email"
-              placeholder="your.email@example.com"
-              value={email}
-              onChangeText={setEmail}
-              leftIcon="mail-outline"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              editable={!loading}
-            />
-
-            <View className="mt-4">
-              <Input
-                label="Password"
-                placeholder="Enter your password"
-                value={password}
-                onChangeText={setPassword}
-                leftIcon="lock-closed-outline"
-                rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                onRightIconPress={() => setShowPassword(!showPassword)}
-                secureTextEntry={!showPassword}
-                editable={!loading}
-              />
+          <View className="px-6">
+            {/* Header */}
+            <View className="items-center mb-8 mt-6">
+              <Text className="text-3xl font-bold text-gray-900 dark:text-white">
+                Ybala Admin
+              </Text>
+              <Text className="text-base text-gray-500 dark:text-gray-400 mt-2">
+                Sign in to your staff account
+              </Text>
             </View>
 
-            <TouchableOpacity
-              className="w-full bg-primary-600 dark:bg-primary-500 py-4 rounded-lg mt-8"
-              onPress={handleLogin}
-              disabled={loading}
-              activeOpacity={0.8}
-            >
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <Text className="text-white text-center font-semibold text-base">
-                  Sign In
-                </Text>
-              )}
-            </TouchableOpacity>
+            {/* Form */}
+            <View>
+              <Input
+                label="Email"
+                placeholder="your.email@example.com"
+                value={email}
+                onChangeText={setEmail}
+                leftIcon="mail-outline"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                editable={!loading}
+              />
+
+              <View className="mt-4">
+                <Input
+                  label="Password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChangeText={setPassword}
+                  leftIcon="lock-closed-outline"
+                  rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  onRightIconPress={() => setShowPassword(!showPassword)}
+                  secureTextEntry={!showPassword}
+                  editable={!loading}
+                />
+              </View>
+
+              <TouchableOpacity
+                className="w-full bg-primary-600 dark:bg-primary-500 py-4 rounded-lg mt-8"
+                onPress={handleLogin}
+                disabled={loading}
+                activeOpacity={0.8}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <Text className="text-white text-center font-semibold text-base">
+                    Sign In
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
