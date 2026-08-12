@@ -1,3 +1,4 @@
+export { BranchFilter } from './BranchFilter';
 export { PaymentReport } from './PaymentReport';
 export { OrderReport } from './OrderReport';
 export { SalesReport } from './SalesReport';

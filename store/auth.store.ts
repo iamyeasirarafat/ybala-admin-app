@@ -11,6 +11,7 @@ import {
 } from '@/storage/secure';
 import { protectedApi, publicApi } from '@/services/api';
 import { queryClient } from '@/providers/QueryProvider';
+import { useAnalyticsFilterStore } from '@/store/analyticsFilter.store';
 import { APP_CONFIG } from '@/constants/config';
 
 const isStaff = (userType: string): userType is UserType =>
@@ -122,6 +123,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // the user who just logged out, and a stale entry served to the next
       // user is both a data leak and the reason re-login used to skip binding.
       queryClient.clear();
+
+      // Same reasoning for the analytics branch scope: it lives outside React
+      // Query, so clearing the cache alone would leave the next user's reports
+      // silently filtered to a branch they never picked.
+      useAnalyticsFilterStore.getState().reset();
     } catch (error) {
       console.error('Logout error:', error);
       throw error;

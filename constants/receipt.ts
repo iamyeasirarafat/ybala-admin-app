@@ -26,7 +26,13 @@ export type ReceiptBlock =
   | { type: 'divider'; char?: string };
 
 /** Printed at the top of every receipt (the settings API has no shop-name field). */
-export const SHOP_NAME = 'Ybala';
+export const SHOP_NAME = 'Ybala Wrq Enab Resturant';
+
+/**
+ * Overrides the phone from Other Settings on the receipt. Set to null to fall
+ * back to whatever the settings API returns.
+ */
+export const SHOP_PHONE: string | null = '+971 50 892 7373';
 
 export const RECEIPT_HEADER: ReceiptBlock[] = [
   { type: 'shopName' },

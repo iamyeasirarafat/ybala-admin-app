@@ -14,6 +14,10 @@ export type OrderStatus =
 
 export type PaymentMethod = 'cash_on_delivery' | 'stripe';
 
+/** Client the order was placed from. Typed loosely because the value is
+ *  free-form on the backend and unknown values must not break the display. */
+export type OrderPlatform = 'android' | 'ios' | 'web';
+
 export interface ShippingAddress {
   street: string;
   city: string;
@@ -98,6 +102,8 @@ export interface Order {
   vat?: string | number;
   delivery_charge?: string | number;
   payment_method?: PaymentMethod;
+  /** Which client placed the order; see orderPlatformLabel. */
+  platform?: OrderPlatform | string | null;
   carts?: CartLine[];
   coupon_data?: ValidatedCoupon[];
   created_at?: string;

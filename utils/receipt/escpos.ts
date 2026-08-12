@@ -18,9 +18,10 @@ export type Align = 'left' | 'center' | 'right';
 const ALIGN_CODE: Record<Align, number> = { left: 0, center: 1, right: 2 };
 
 /**
- * Thermal printers speak a single-byte code page, not UTF-8. Anything outside
- * Latin-1 (notably Arabic) has no representation in the default code page and
- * would print as garbage, so it is replaced rather than emitted raw.
+ * Thermal printers speak a single-byte code page, not UTF-8, so anything above
+ * Latin-1 has no byte to send. Text reaching here should already have been run
+ * through toPrintable(), which transliterates Arabic; this `?` fallback is the
+ * last resort for scripts that have no Latin form.
  */
 const encodeText = (text: string): number[] => {
   const out: number[] = [];

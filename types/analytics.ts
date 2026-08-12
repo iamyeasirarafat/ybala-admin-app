@@ -14,6 +14,15 @@ export interface PaymentAnalyticsParams {
   end_date?: string;
 }
 
+/**
+ * Branch scope applied to every analytics request. Omitting `branch_id`
+ * entirely is what asks the API for all branches — sending an empty or null
+ * value would be a filter for "no branch".
+ */
+export interface BranchFilterParams {
+  branch_id?: number;
+}
+
 // Keyed by month/day label, e.g. { jan: { customer_orders, guest_orders }, ... }
 export type OrderReport = Record<
   string,

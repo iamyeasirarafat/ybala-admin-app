@@ -21,7 +21,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { CartLine, OrderStatus, ShippingAddress } from '@/types';
 import { formatCurrency } from '@/utils/format';
 import { OrderStatusBadge } from './OrderStatusBadge';
-import { STATUS_ACTIONS, STATUS_META } from './orderStatus';
+import { orderPlatformLabel, STATUS_ACTIONS, STATUS_META } from './orderStatus';
 
 const Row = ({
   label,
@@ -33,8 +33,12 @@ const Row = ({
   bold?: boolean;
 }) => (
   <View className="flex-row items-center justify-between py-1">
+    {/* The label takes the leftover width and the amount never shrinks:
+        without this, a wide value like "1,234.00 AED" squeezed the label
+        until words such as "Subtotal" broke mid-word. */}
     <Text
-      className={`text-sm ${
+      numberOfLines={1}
+      className={`text-sm flex-1 pr-3 ${
         bold
           ? 'font-bold text-gray-900 dark:text-white'
           : 'text-gray-500 dark:text-gray-400'
@@ -43,7 +47,8 @@ const Row = ({
       {label}
     </Text>
     <Text
-      className={`text-sm ${
+      numberOfLines={1}
+      className={`text-sm shrink-0 text-right ${
         bold
           ? 'font-bold text-gray-900 dark:text-white'
           : 'text-gray-700 dark:text-gray-200'
@@ -148,6 +153,16 @@ export const OrderDetail: React.FC = () => {
             {order.customer_email}
           </Text>
         )}
+        {/* Always shown, unlike the fields above: "Unknown" is itself useful
+            information, and a missing row would read as a rendering bug. */}
+        <View className="flex-row items-center mt-2">
+          <Text className="text-sm text-gray-500 dark:text-gray-400">
+            Order from:{' '}
+          </Text>
+          <Text className="text-sm font-medium text-gray-900 dark:text-white">
+            {orderPlatformLabel(order.platform)}
+          </Text>
+        </View>
       </Card>
 
       {/* Delivery / Pickup */}

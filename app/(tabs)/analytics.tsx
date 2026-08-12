@@ -5,7 +5,12 @@ import {
   UserReport,
   WishlistReport,
 } from '@/components/analytics';
-import { OrderReport, PaymentReport, SalesReport } from '@/components/dashboard';
+import {
+  BranchFilter,
+  OrderReport,
+  PaymentReport,
+  SalesReport,
+} from '@/components/dashboard';
 import { useAuthStore } from '@/store/auth.store';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -37,6 +42,8 @@ export default function AnalyticsScreen() {
             Track and measure your sales and customers
           </Text>
         </View>
+
+        <BranchFilter />
 
         {/* Sales analytics */}
         <PaymentReport />

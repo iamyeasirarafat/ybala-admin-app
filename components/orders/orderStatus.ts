@@ -58,6 +58,26 @@ export const STATUS_META: Record<OrderStatus, StatusMeta> = {
   },
 };
 
+/**
+ * Human label for the client an order came from.
+ *
+ * Matching is case-insensitive and anything unrecognised — including a missing
+ * field on older orders placed before the backend started sending it — falls
+ * back to "Unknown" rather than showing a raw value.
+ */
+export const orderPlatformLabel = (platform?: string | null): string => {
+  switch (platform?.trim().toLowerCase()) {
+    case 'web':
+      return 'Website';
+    case 'ios':
+      return 'iOS App';
+    case 'android':
+      return 'Android App';
+    default:
+      return 'Unknown';
+  }
+};
+
 // Order list groups (New / Ongoing / Completed) shown as tabs.
 export type OrderListTab = 'new' | 'ongoing' | 'completed';
 

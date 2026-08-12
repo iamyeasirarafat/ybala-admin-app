@@ -3,6 +3,7 @@ import {
   RECEIPT_HEADER,
   ReceiptBlock,
   SHOP_NAME,
+  SHOP_PHONE,
 } from '@/constants/receipt';
 import {
   CartLine,
@@ -20,6 +21,7 @@ import {
   padLine,
   wrapText,
 } from './escpos';
+import { toPrintable } from './transliterate';
 
 /**
  * One printable element. Building a document first (rather than emitting bytes
@@ -70,12 +72,14 @@ const toNumber = (value: string | number | undefined): number => {
  * carry markup that would print as literal tag soup.
  */
 const stripHtml = (value?: string): string =>
-  (value ?? '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/\s+/g, ' ')
-    .trim();
+  toPrintable(
+    (value ?? '')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
 
 const formatDateTime = (iso?: string): string => {
   const date = iso ? new Date(iso) : new Date();
@@ -90,13 +94,15 @@ const formatDateTime = (iso?: string): string => {
 const cartLineDescription = (line: CartLine): string => {
   const name =
     line.menu_data?.translations?.en?.name?.trim() || `Item #${line.menu}`;
-  return `${line.quantity} x ${name}`;
+  return toPrintable(`${line.quantity} x ${name}`);
 };
 
 const variantLabel = (line: CartLine): string | null => {
   const variant = line.variant as { name?: string } | null | undefined;
   const name = variant?.name?.trim();
-  return name ? `  (${name})` : null;
+  // Transliterate the name only, then indent: toPrintable() collapses and
+  // trims whitespace, so indenting first would lose the leading spaces.
+  return name ? `  (${toPrintable(name)})` : null;
 };
 
 /**
@@ -130,7 +136,7 @@ const renderBlock = (
       ];
 
     case 'phone': {
-      const phone = shop.other?.phone?.trim();
+      const phone = SHOP_PHONE?.trim() || shop.other?.phone?.trim();
       if (!phone) return [];
       const label = block.label ? `${block.label}: ` : '';
       return [{ type: 'text', value: centerText(`${label}${phone}`) }];
@@ -192,24 +198,27 @@ export const buildOrderReceipt = (
   line(centerText(formatDateTime(order.created_at)));
   line(divider());
 
-  const customerName = order.full_name?.trim() || 'Guest';
+  // Customer-supplied text is transliterated before layout, not after: an
+  // Arabic name changes length when converted, and the 32-column wrapping has
+  // to measure the string that actually gets printed.
+  const customerName = toPrintable(order.full_name?.trim() || 'Guest');
   wrapText(`Customer: ${customerName}`).forEach((l) => line(l));
-  if (order.customer_phone) line(`Phone: ${order.customer_phone}`);
+  if (order.customer_phone) line(toPrintable(`Phone: ${order.customer_phone}`));
 
   if (order.is_pickup) {
     const branch = order.branch_info?.en_title?.trim();
-    line(`Type: Pickup${branch ? ` - ${branch}` : ''}`);
+    line(toPrintable(`Type: Pickup${branch ? ` - ${branch}` : ''}`));
   } else {
     line('Type: Delivery');
     const address = order.shipping_address as ShippingAddress | undefined;
     const parts = [address?.street, address?.city, address?.state, address?.zip]
       .filter(Boolean)
       .join(', ');
-    if (parts) wrapText(parts).forEach((l) => line(l));
+    if (parts) wrapText(toPrintable(parts)).forEach((l) => line(l));
   }
 
   const note = order.delivery_note?.trim();
-  if (note) wrapText(`Note: ${note}`).forEach((l) => line(l));
+  if (note) wrapText(toPrintable(`Note: ${note}`)).forEach((l) => line(l));
 
   // ---- Items ----
   line(divider());
@@ -228,8 +237,8 @@ export const buildOrderReceipt = (
 
       const instruction = cart.instruction?.trim();
       if (instruction) {
-        wrapText(`* ${instruction}`, PAPER_COLUMNS - 2).forEach((l) =>
-          line(`  ${l}`),
+        wrapText(toPrintable(`* ${instruction}`), PAPER_COLUMNS - 2).forEach(
+          (l) => line(`  ${l}`),
         );
       }
     }

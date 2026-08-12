@@ -2,7 +2,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
-import { OrderReport, PaymentReport, SalesReport } from '@/components/dashboard';
+import {
+  BranchFilter,
+  OrderReport,
+  PaymentReport,
+  SalesReport,
+} from '@/components/dashboard';
 import { useProfile } from '@/hooks/useProfile';
 
 export default function DashboardScreen() {
@@ -37,6 +42,8 @@ export default function DashboardScreen() {
             Track and manage your orders & users from the dashboard
           </Text>
         </View>
+
+        <BranchFilter />
 
         <PaymentReport />
         <OrderReport />
