@@ -22,26 +22,20 @@ const config: ExpoConfig = {
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: "#ffffff00",
+      backgroundColor: "#00000000",
       foregroundImage: './assets/images/icon-foreground.png'
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     package: 'com.ybala.adminApp',
     googleServicesFile: './google-services.json',
-    // Required to reach the NETUM PDA's built-in printer over Bluetooth SPP.
-    // BLUETOOTH/BLUETOOTH_ADMIN cover Android <= 11; CONNECT/SCAN are the
-    // Android 12+ replacements and are runtime permissions.
-    permissions: [
-      'android.permission.BLUETOOTH',
-      'android.permission.BLUETOOTH_ADMIN',
-      'android.permission.BLUETOOTH_CONNECT',
-      'android.permission.BLUETOOTH_SCAN',
-    ],
   },
   plugins: [
     'expo-router',
     'expo-audio',
+    // Q2/Q21 built-in thermal printer: injects the vendor AIDL and the native
+    // module into the generated android project (see plugins/withPosPrinter.js).
+    './plugins/withPosPrinter',
     [
       'expo-splash-screen',
       {

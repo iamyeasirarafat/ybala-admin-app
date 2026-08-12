@@ -58,17 +58,15 @@ export const cmdSize = (width: 1 | 2, height: 1 | 2): number[] => [
 export const cmdFeed = (lines: number): number[] => [ESC, 0x64, lines];
 
 /**
- * Lines fed after the last text so the receipt clears the tear bar.
+ * End of receipt.
  *
- * This hardware (NETUM NT-PDA / P58) has no auto-cutter — it silently ignores
- * `GS V`, so sending a cut command would print nothing and leave the receipt
- * still under the head, un-tearable. The tear bar sits further from the print
- * head than a blade would, hence more feed than a cutter needs.
+ * Deliberately emits no bytes. This hardware has no auto-cutter (`GS V` is
+ * ignored), and the paper feed that lets the receipt clear the tear bar is
+ * performed by the vendor service's `printerPerformPrint(feedlines)` call,
+ * which every print must end with anyway. Emitting `ESC d` here as well would
+ * feed twice and waste roughly 20mm of paper per receipt.
  */
-const TEAR_FEED_LINES = 5;
-
-/** Advances the paper far enough for the receipt to be torn off by hand. */
-export const cmdTearFeed = (): number[] => cmdFeed(TEAR_FEED_LINES);
+export const cmdTearFeed = (): number[] => [];
 
 /** Emits a line of text plus a line feed. */
 export const cmdText = (text: string): number[] => [...encodeText(text), LF];

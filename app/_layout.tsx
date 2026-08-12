@@ -1,6 +1,7 @@
 import { AuthProvider } from '@/providers/AuthProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { setNavigationHandler } from '@/services/api';
+import { initPosPrinter } from '@/services/posPrinter';
 import {
   initializeOneSignal,
   requestPushPermission,
@@ -108,6 +109,12 @@ export default function RootLayout() {
       );
       OneSignal.User.removeEventListener('change', onUserChange);
     };
+  }, []);
+
+  useEffect(() => {
+    // Binds the built-in thermal printer. No-ops on hardware without the
+    // vendor service, so this is safe on phones used for development.
+    initPosPrinter();
   }, []);
 
   useEffect(() => {
