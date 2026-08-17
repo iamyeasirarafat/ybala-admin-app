@@ -67,20 +67,6 @@ const toNumber = (value: string | number | undefined): number => {
   return Number.isNaN(n) ? 0 : n;
 };
 
-/**
- * `about_us` and similar settings fields come from a rich-text editor, so they
- * carry markup that would print as literal tag soup.
- */
-const stripHtml = (value?: string): string =>
-  toPrintable(
-    (value ?? '')
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/\s+/g, ' ')
-      .trim(),
-  );
-
 const formatDateTime = (iso?: string): string => {
   const date = iso ? new Date(iso) : new Date();
   if (Number.isNaN(date.getTime())) return '';
@@ -153,14 +139,6 @@ const renderBlock = (
       if (!whatsapp) return [];
       const label = block.label ? `${block.label}: ` : '';
       return [{ type: 'text', value: centerText(`${label}${whatsapp}`) }];
-    }
-
-    case 'aboutUs': {
-      const about = stripHtml(shop.other?.about_us);
-      if (!about) return [];
-      return wrapText(about)
-        .slice(0, block.maxLines ?? 3)
-        .map((l) => ({ type: 'text' as const, value: centerText(l) }));
     }
 
     case 'space':

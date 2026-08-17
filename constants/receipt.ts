@@ -5,8 +5,8 @@ import { Align } from '@/utils/receipt/escpos';
  *
  * Edit the arrays below to change what prints and in what order — no changes
  * to the receipt builder are needed. Blocks that pull from the settings API
- * (phone, email, whatsapp, aboutUs) are skipped automatically when that field
- * is empty, so leaving them in is safe.
+ * (phone, email, whatsapp) are skipped automatically when that field is empty,
+ * so leaving them in is safe.
  */
 
 export type ReceiptBlock =
@@ -18,8 +18,6 @@ export type ReceiptBlock =
   | { type: 'phone'; label?: string }
   | { type: 'email' }
   | { type: 'whatsapp'; label?: string }
-  /** about_us text from Other Settings, HTML stripped. */
-  | { type: 'aboutUs'; maxLines?: number }
   /** Blank line(s). */
   | { type: 'space'; lines?: number }
   /** A full-width rule, e.g. -------------------------------- */
@@ -46,5 +44,4 @@ export const RECEIPT_FOOTER: ReceiptBlock[] = [
   { type: 'space' },
   { type: 'text', value: 'Thank you!', align: 'center' },
   { type: 'space' },
-  { type: 'aboutUs', maxLines: 3 },
 ];
