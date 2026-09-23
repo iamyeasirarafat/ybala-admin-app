@@ -113,6 +113,10 @@ export interface Order {
   branch_info?: BranchInfo | null;
   store_location?: number | null;
   store_location_data?: StoreLocation | null;
+  assigned_delivery_man?: number | null;
+  assigned_delivery_man_data?: OrderUserData | null;
+  dropoff_latitude?: number | null;
+  dropoff_longitude?: number | null;
 }
 
 export interface CreateOrderPayload {

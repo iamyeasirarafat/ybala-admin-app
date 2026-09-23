@@ -203,6 +203,14 @@ export default function RootLayout() {
             options={{ title: 'User', headerLeft: backButton }}
           />
           <Stack.Screen
+            name="delivery/index"
+            options={{ title: 'Delivery Men', headerLeft: backButton }}
+          />
+          <Stack.Screen
+            name="delivery/delivery-man-form"
+            options={{ title: 'Delivery Man', headerLeft: backButton }}
+          />
+          <Stack.Screen
             name="promotion/index"
             options={{ title: 'Promotion', headerLeft: backButton }}
           />

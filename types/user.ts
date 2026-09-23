@@ -1,6 +1,10 @@
 // User management types — mirrors yabala-be/apps/user UserSerializer
 
-export type ManagedUserType = 'admin' | 'manager' | 'customer';
+export type ManagedUserType =
+  | 'admin'
+  | 'manager'
+  | 'customer'
+  | 'delivery_man';
 
 export interface ManagedUserAddress {
   id: number;
@@ -16,6 +20,8 @@ export interface ManagedUser {
   profile_image?: string | null;
   address?: ManagedUserAddress[];
   store_location?: number | null;
+  /** Set only for delivery_man users that already have a DeliveryManProfile. */
+  delivery_profile_id?: number | null;
 }
 
 export interface UserPayload {

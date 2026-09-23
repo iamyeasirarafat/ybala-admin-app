@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { OrderDeliverySection } from '@/components/delivery';
 import { SingleSelectField } from '@/components/menu/SingleSelectField';
 import {
   useAssignStoreLocation,
@@ -184,6 +185,9 @@ export const OrderDetail: React.FC = () => {
           </Text>
         )}
       </Card>
+
+      {/* Delivery man assignment + rider details */}
+      <OrderDeliverySection order={order} />
 
       {/* Items */}
       <Card title={`Items (${carts.length})`}>

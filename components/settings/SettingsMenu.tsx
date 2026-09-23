@@ -25,6 +25,12 @@ export const SettingsMenu: React.FC = () => {
         onPress={() => router.push('/users')}
       />
       <MenuItem
+        icon="bicycle-outline"
+        text="Delivery Men"
+        subtitle="Riders, vehicles & delivery record"
+        onPress={() => router.push('/delivery')}
+      />
+      <MenuItem
         icon="color-palette-outline"
         text="Brand Settings"
         subtitle="Logo, favicon & login image"

@@ -4,6 +4,7 @@ export * from './promotion';
 export * from './user';
 export * from './menu';
 export * from './order';
+export * from './delivery';
 
 export type UserType = 'admin' | 'manager';
 

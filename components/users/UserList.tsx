@@ -19,6 +19,7 @@ const TYPE_TABS: { key: string; label: string }[] = [
   { key: 'customer', label: 'Customer' },
   { key: 'admin', label: 'Admin' },
   { key: 'manager', label: 'Manager' },
+  { key: 'delivery_man', label: 'Delivery' },
 ];
 
 const PAGE_SIZE = 15;
@@ -29,6 +30,8 @@ const typeBadge = (type: ManagedUserType) => {
       return 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300';
     case 'manager':
       return 'bg-secondary-100 dark:bg-secondary-900 text-secondary-700 dark:text-secondary-300';
+    case 'delivery_man':
+      return 'bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300';
     default:
       return 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
   }
