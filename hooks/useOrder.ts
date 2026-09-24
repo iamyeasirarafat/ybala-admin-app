@@ -29,11 +29,16 @@ export const useOrders = (params: OrderListParams) =>
   staleTime: 2 * 1000,       // fresh for 2 seconds
   });
 
-export const useOrder = (id?: number) =>
+export const useOrder = (id?: number, options?: { poll?: boolean }) =>
   useQuery({
     queryKey: keys.order(id ?? 0),
     queryFn: () => orderService.getOrder(id as number),
     enabled: !!id,
+    // Poll on the detail screen so delivery status changes show up live
+    ...(options?.poll && {
+      refetchInterval: 5 * 1000, // check every 5 seconds
+      staleTime: 2 * 1000, // fresh for 2 seconds
+    }),
   });
 
 export const useCreateOrder = () => {

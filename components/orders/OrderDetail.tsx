@@ -81,7 +81,7 @@ export const OrderDetail: React.FC = () => {
   const orderId = id ? Number(id) : undefined;
   const userType = useAuthStore((s) => s.userType);
 
-  const { data: order, isLoading } = useOrder(orderId);
+  const { data: order, isLoading } = useOrder(orderId, { poll: true });
   const updateStatus = useUpdateOrderStatus();
   const deleteOrder = useDeleteOrder();
   const assignStore = useAssignStoreLocation();
