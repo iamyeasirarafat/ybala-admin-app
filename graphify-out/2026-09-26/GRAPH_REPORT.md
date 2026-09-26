@@ -1,7 +1,7 @@
-# Graph Report - ybala-admin-app  (2026-09-26)
+# Graph Report - ybala-admin-app  (2026-09-23)
 
 ## Corpus Check
-- 191 files · ~211,630 words
+- 191 files · ~211,525 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `10f99663`
+- Built from commit: `42543c58`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -225,7 +225,7 @@ Cohesion: 0.40
 Nodes (4): CustomerSelectField(), CustomerSelectFieldProps, GUEST, SelectedCustomer
 
 ## Knowledge Gaps
-- **162 isolated node(s):** `config`, `unstable_settings`, `Meta`, `ASSIGNMENT_STATUS_META`, `RIDER_STATUS_META` (+157 more)
+- **162 isolated node(s):** `unstable_settings`, `Meta`, `ASSIGNMENT_STATUS_META`, `RIDER_STATUS_META`, `UNKNOWN_META` (+157 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **44 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -238,7 +238,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.215) - this node is a cross-community bridge._
 - **Why does `react` connect `ToastManager` to `dependencies`?**
   _High betweenness centrality (0.213) - this node is a cross-community bridge._
-- **What connects `config`, `unstable_settings`, `Meta` to the rest of the system?**
+- **What connects `unstable_settings`, `Meta`, `ASSIGNMENT_STATUS_META` to the rest of the system?**
   _162 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `useAuthStore` be split into smaller, more focused modules?**
   _Cohesion score 0.09375 - nodes in this community are weakly interconnected._
