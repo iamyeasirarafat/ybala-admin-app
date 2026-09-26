@@ -48,7 +48,7 @@
       "label": "config",
       "file_type": "code",
       "source_file": "app.config.ts",
-      "source_location": "L15",
+      "source_location": "L10",
       "_origin": "ast",
       "id": "app_config_config",
       "community": 23,
@@ -9487,7 +9487,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app.config.ts",
-      "source_location": "L15",
+      "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_config",
@@ -33656,5 +33656,5 @@
       "source_file": "README.md"
     }
   ],
-  "built_at_commit": "10f99663ef271257d9bf2150c6e523d7dede64d3"
+  "built_at_commit": "2312800e1ec514d1947fb60a63935f6e74621990"
 }

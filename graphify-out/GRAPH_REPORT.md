@@ -1,7 +1,7 @@
 # Graph Report - ybala-admin-app  (2026-09-26)
 
 ## Corpus Check
-- 191 files · ~211,630 words
+- 191 files · ~211,569 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `10f99663`
+- Built from commit: `2312800e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
