@@ -7,11 +7,6 @@ import { ExpoConfig } from 'expo/config';
 const easBuildProfile = process.env.EAS_BUILD_PROFILE;
 const oneSignalMode = easBuildProfile === 'production' ? 'production' : 'development';
 
-
-const IOS_BUNDLE_ID = 'com.ybala.adminApp';
-const ONESIGNAL_APP_GROUP = `group.${IOS_BUNDLE_ID}.onesignal`;
-
-
 const config: ExpoConfig = {
   name: 'Ybala Admin',
   slug: 'ybala_admin_app',
@@ -66,24 +61,6 @@ const config: ExpoConfig = {
     router: {},
     eas: {
       projectId: '088c52d3-0d5c-4c38-bd72-f1de72ca144e',
-      // Tells EAS about the OneSignal notification extension so it enables
-      // the App Group on the extension's App ID and includes it in the
-      // provisioning profile it generates.
-      build: {
-        experimental: {
-          ios: {
-            appExtensions: [
-              {
-                targetName: 'OneSignalNotificationServiceExtension',
-                bundleIdentifier: `${IOS_BUNDLE_ID}.OneSignalNotificationServiceExtension`,
-                entitlements: {
-                  'com.apple.security.application-groups': [ONESIGNAL_APP_GROUP],
-                },
-              },
-            ],
-          },
-        },
-      },
     },
   },
   runtimeVersion: {
