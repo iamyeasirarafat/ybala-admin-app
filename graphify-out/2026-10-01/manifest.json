@@ -395,7 +395,7 @@
     "semantic_hash": "cdcb01d0811b640ec8c8b02c875eebdf"
   },
   "components/orders/OrderSummary.tsx": {
-    "mtime": 1790571414.6656,
+    "mtime": 1786554212.8914437,
     "ast_hash": "452a4a0cf438200c639c6cf362cee4e0",
     "semantic_hash": ""
   },
@@ -900,8 +900,8 @@
     "semantic_hash": ""
   },
   "components/orders/useOrderAlertSound.ts": {
-    "mtime": 1790824683.9861891,
-    "ast_hash": "0a9904636409c4dc4bb8b53ca5364867",
+    "mtime": 1786550022.0693815,
+    "ast_hash": "d49ad5809f960ceda39bd482dbb504bc",
     "semantic_hash": ""
   },
   "components/orders/useOrderReceiptPrinter.ts": {
