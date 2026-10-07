@@ -36,6 +36,9 @@ const config: ExpoConfig = {
     // Q2/Q21 built-in thermal printer: injects the vendor AIDL and the native
     // module into the generated android project (see plugins/withPosPrinter.js).
     './plugins/withPosPrinter',
+    // Google Play developer verification: copies adi-registration.properties
+    // into android/app/src/main/assets (see plugins/withAdiRegistration.js).
+    './plugins/withAdiRegistration',
     [
       'expo-splash-screen',
       {
