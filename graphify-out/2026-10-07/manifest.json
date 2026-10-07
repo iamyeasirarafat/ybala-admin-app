@@ -15,8 +15,8 @@
     "semantic_hash": "6b9302c1f72c315e90233c7539c48c9f"
   },
   "app.config.ts": {
-    "mtime": 1791390333.3336759,
-    "ast_hash": "3e6b58b293f56f28cbcaedfb6e1da8b0",
+    "mtime": 1790401037.3719819,
+    "ast_hash": "433ae5666c71299b9d3dc4619282161c",
     "semantic_hash": ""
   },
   "app/(auth)/_layout.tsx": {
@@ -977,11 +977,6 @@
   "utils/receipt/transliterate.ts": {
     "mtime": 1786554212.8955827,
     "ast_hash": "c2f794e2118b5a36456eba1ce1822e47",
-    "semantic_hash": ""
-  },
-  "plugins/withAdiRegistration.js": {
-    "mtime": 1791390330.846605,
-    "ast_hash": "f122b704884f4692f590218e1046c80e",
     "semantic_hash": ""
   }
 }
